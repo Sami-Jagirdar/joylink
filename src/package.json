@@ -1,0 +1,22 @@
+{
+    "name": "joylink",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+      "start": "electron ."
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+      "electron": "^34.0.0",
+      "qrcode": "^1.5.4",
+      "@nut-tree-fork/nut-js": "^4.2.4"
+    },
+    "dependencies": {
+      "@nut-tree-fork/nut-js": "^4.2.4",
+      "electron": "^34.0.0",
+      "qrcode": "^1.5.4"
+    }
+  }
