@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main":"src/electron/main",
+  "main": "src/electron/main",
   "scripts": {
     "dev:react": "vite",
     "dev:electron": "electron .",
@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
