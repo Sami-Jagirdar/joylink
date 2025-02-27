@@ -1,17 +1,21 @@
 {
-  "name": "joylink",
+  "name": "desktop-app",
   "private": true,
   "version": "0.0.0",
-  "main": "src/electron/main",
+  "type": "module",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev:react": "vite",
     "dev:electron": "electron .",
     "build": "tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "transpile:electron": "tsc --project src/electron/tsconfig.json",
+    "dist:win": "npm run transpile:electron && npm run build && electron-builder --win --x64",
+    "dist:mac": "npm run transpile:electron && npm run build && electron-builder --mac --arm64",
+    "dist:linux": "npm run transpile:electron && npm run build && electron-builder --linux --x64"
   },
   "dependencies": {
-    "@nut-tree-fork/nut-js": "^4.2.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -21,9 +25,9 @@
     "@typescript-eslint/eslint-plugin": "^7.13.1",
     "@typescript-eslint/parser": "^7.13.1",
     "@vitejs/plugin-react": "^4.3.1",
-    "electron": "^34.0.0",
-    "eslint": "^8.57.1",
-    "eslint-plugin-react": "^7.37.4",
+    "electron": "^34.3.0",
+    "electron-builder": "^25.1.8",
+    "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "typescript": "^5.2.2",
