@@ -25,20 +25,25 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies for Controller App
+        run: |
+          cd controller
+          npm install
 
       - name: Build Controller App
         run: |
           cd controller
-          npm install
           npm run build
-          cd ..
 
       - name: Move Controller Build to Electron App
         run: |
           rm -rf desktop-app/dist-controller
           mv controller/dist-controller desktop-app/dist-controller
+
+      - name: Install dependencies for Electron App
+        run: |
+          cd desktop-app
+          npm install
 
       - name: Install Electron Builder
         run: npm install -g electron-builder
