@@ -26,7 +26,6 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-
       - name: Install dependencies for Controller App
         run: |
           cd controller-app
@@ -37,18 +36,22 @@ jobs:
           cd controller-app
           npm run build
 
-      - name: Move Controller Build to Electron App
+      - name: Move Controller Build to Electron App (Unix)
+        if: matrix.os != 'windows-latest'
         run: |
           rm -rf desktop-app/dist-controller
           mv controller-app/dist-controller desktop-app/dist-controller
+
+      - name: Move Controller Build to Electron App (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          if exist desktop-app\dist-controller rmdir /s /q desktop-app\dist-controller
+          xcopy /E /I controller-app\dist-controller desktop-app\dist-controller
 
       - name: Install dependencies for Electron App
         run: |
           cd desktop-app
           npm install
-
-      - name: Install Electron Builder
-        run: npm install -g electron-builder
 
       - name: Build Electron App for Windows
         if: matrix.os == 'windows-latest'
