@@ -1,0 +1,75 @@
+name: Build and Release JoyLink
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Controller App
+        run: |
+          cd controller
+          npm install
+          npm run build
+          cd ..
+
+      - name: Move Controller Build to Electron App
+        run: |
+          rm -rf desktop-app/dist-controller
+          mv controller/dist-controller desktop-app/dist-controller
+
+      - name: Install Electron Builder
+        run: npm install -g electron-builder
+
+      - name: Build Electron App for Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd desktop-app
+          npm run dist:win
+
+      - name: Build Electron App for macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd desktop-app
+          npm run dist:mac
+
+      - name: Build Electron App for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd desktop-app
+          npm run dist:linux
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: JoyLink-${{ matrix.os }}
+          path: desktop-app/dist/*
+
+      - name: Upload to GitHub Releases
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: desktop-app/dist/*
+          token: ${{ secrets.GITHUB_TOKEN }}
