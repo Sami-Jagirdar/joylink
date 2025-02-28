@@ -44,9 +44,12 @@ jobs:
 
       - name: Move Controller Build to Electron App (Windows)
         if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
-          if exist desktop-app\dist-controller rmdir /s /q desktop-app\dist-controller
-          xcopy /E /I controller-app\dist-controller desktop-app\dist-controller
+          if (Test-Path -Path "desktop-app\dist-controller") {
+            Remove-Item -Path "desktop-app\dist-controller" -Recurse -Force
+          }
+          Copy-Item -Path "controller-app\dist-controller" -Destination "desktop-app\dist-controller" -Recurse
 
       - name: Install dependencies for Electron App
         run: |
