@@ -40,7 +40,7 @@ jobs:
       - name: Move Controller Build to Electron App
         run: |
           rm -rf desktop-app/dist-controller
-          mv controller/dist-controller desktop-app/dist-controller
+          mv controller-app/dist-controller desktop-app/dist-controller
 
       - name: Install dependencies for Electron App
         run: |
