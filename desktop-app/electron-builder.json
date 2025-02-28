@@ -2,6 +2,7 @@
     "appId": "com.uofa2025-ece493-group01.JoyLink",
     "files": ["dist-electron", "dist-react"],
     "icon":"./logo.png",
+    "extraResources": ["dist-electron/preload.cjs"],
     "mac": {
         "target":"dmg"
     },
