@@ -17,3 +17,7 @@ export function getUIPath() {
 export function getAssetPath() {
   return path.join(app.getAppPath(), isDev() ? '.' : '..', '/src/assets');
 }
+
+export function getControllerPath() {
+  return path.join(app.getAppPath(), '../controller-app/dist-controller')
+}

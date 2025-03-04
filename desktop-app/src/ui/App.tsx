@@ -1,30 +1,33 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import { useState, useEffect } from 'react'
 import './App.css'
+import QRCode from 'qrcode';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [url, setUrl] = useState<string>("No Network Connection");
+  useEffect(() => {
+    window.electron.listenForControllerUrl((url: any) => {
+      if (url) {
+        setUrl(url);
 
+        const qrcodeElement = document.getElementById('qrcode') as HTMLCanvasElement;
+        QRCode.toCanvas(qrcodeElement, url, function (error: any) {
+          if (error) {
+              console.error('Error generating QR code:', error);
+          }
+          //console.log('QR code generated!');
+        })
+      } else {
+        setUrl("No Network Connection");
+      }
+    })
+  }, [])
   return (
     <>
+      <h1>JoyLink</h1>
       <div>
-        HELLO
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <p>{url}</p>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <canvas id="qrcode"></canvas>
     </>
   )
 }
