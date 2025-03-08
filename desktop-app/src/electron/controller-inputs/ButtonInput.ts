@@ -1,6 +1,7 @@
 import { KeyboardTarget, MouseClickTarget } from "../../../types";
 import { ControllerInput } from "./ControllerInput";
 import {keyboard, mouse} from "@nut-tree-fork/nut-js";
+keyboard.config.autoDelayMs = 5;
 
 export class ButtonInput extends ControllerInput {
     constructor(id: string, mappingTarget: KeyboardTarget | MouseClickTarget) {

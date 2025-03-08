@@ -74,7 +74,7 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
         </div>
 
         {/* Center - Start/Options buttons */}
-        <div className="flex flex-col items-center justify-center gap-4">
+        <div className="flex flex-row items-center justify-center gap-8">
           <GameButton name="start" label="START" color="bg-[#4E4848]" textColor="text-white" onPress={(isPressed) => handleButtonEvent("start", isPressed)} className="h-[20px] w-[80px] rounded-full px-2 py-1 text-xs" />
           <GameButton name="options" label="OPTIONS" color="bg-[#4E4848]" textColor="text-white" onPress={(isPressed) => handleButtonEvent("options", isPressed)} className="h-[20px] w-[80px] rounded-full px-2 py-1 text-xs" />
         </div>
@@ -82,16 +82,16 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
         {/* Right side - Action buttons */}
         <div className="flex-1 flex justify-center items-center">
           <div className="relative h-[240px] w-[240px]">
-            <div className="absolute left-1/2 top-0 -translate-x-1/2">
+            <div className="absolute left-1/2 top-2 -translate-x-1/2">
               <GameButton name="y" label="Y" color="bg-[#807300]" onPress={(isPressed) => handleButtonEvent("y", isPressed)} className="h-[85px] w-[85px] rounded-full" />
             </div>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2">
+            <div className="absolute right-2 top-1/2 -translate-y-1/2">
               <GameButton name="b" label="B" color="bg-[#A90202]" onPress={(isPressed) => handleButtonEvent("b", isPressed)} className="h-[85px] w-[85px] rounded-full" />
             </div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
               <GameButton name="a" label="A" color="bg-[#00802F]" onPress={(isPressed) => handleButtonEvent("a", isPressed)} className="h-[85px] w-[85px] rounded-full" />
             </div>
-            <div className="absolute left-0 top-1/2 -translate-y-1/2">
+            <div className="absolute left-2 top-1/2 -translate-y-1/2">
               <GameButton name="x" label="X" color="bg-[#001880]" onPress={(isPressed) => handleButtonEvent("x", isPressed)} className="h-[85px] w-[85px] rounded-full" />
             </div>
           </div>
