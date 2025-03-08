@@ -32,12 +32,12 @@ export default function GameButton({
     onPress(false)
   }
 
-  const handlePointerLeave = () => {
-    if (isPressed) {
-      setIsPressed(false)
-      onPress(false)
-    }
-  }
+//   const handlePointerLeave = () => {
+//     if (isPressed) {
+//       setIsPressed(false)
+//       onPress(false)
+//     }
+//   }
 
   // Clean up pressed state when component unmounts
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function GameButton({
       `}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerLeave}
+    //   onPointerLeave={handlePointerLeave}
       aria-pressed={isPressed}
       data-button={name}
     >

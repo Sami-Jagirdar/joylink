@@ -11,6 +11,14 @@ export abstract class ControllerInput {
         this.enabled = true;
     }
 
+    getId(): string {
+        return this.id;
+    }
+
+    getMappingTarget(): OutputTarget {
+        return this.mappingTarget;
+    }
+
     abstract handleInput(data: unknown): Promise<void>;
 
 }
