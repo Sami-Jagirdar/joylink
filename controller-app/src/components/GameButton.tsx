@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 interface GameButtonProps {
   name: string
@@ -20,43 +20,83 @@ export default function GameButton({
   onPress,
 }: GameButtonProps) {
   const [isPressed, setIsPressed] = useState(false)
+  // Keep track of active pointer IDs to prevent duplicate events
+  const activePointers = useRef(new Set<number>())
 
   // Handle pointer events (works for both touch and mouse)
   const handlePointerDown = (e: React.PointerEvent) => {
-    setIsPressed(true)
-    onPress(true)
-    e.currentTarget.setPointerCapture(e.pointerId)
+    e.stopPropagation() // Prevent event bubbling
+    
+    // Only process if this pointer isn't already active
+    if (!activePointers.current.has(e.pointerId)) {
+      activePointers.current.add(e.pointerId)
+      
+      if (!isPressed) {
+        setIsPressed(true)
+        onPress(true) // Only emit press event once
+      }
+      
+      // Capture pointer to receive all events
+      e.currentTarget.setPointerCapture(e.pointerId)
+    }
   }
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    setIsPressed(false)
-    onPress(false)
-    e.currentTarget.releasePointerCapture(e.pointerId)
+    e.stopPropagation() // Prevent event bubbling
+    
+    // Remove this pointer from active set
+    activePointers.current.delete(e.pointerId)
+    
+    // Release pointer capture
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    } catch (err) {
+      // Ignore errors if already released
+    }
+    
+    // Only change state if no other pointers are active
+    if (activePointers.current.size === 0 && isPressed) {
+      setIsPressed(false)
+      onPress(false) // Only emit release event once
+    }
   }
 
   const handlePointerCancel = (e: React.PointerEvent) => {
-    if (isPressed) {
+    e.stopPropagation() // Prevent event bubbling
+    
+    // Remove this pointer from active set
+    activePointers.current.delete(e.pointerId)
+    
+    // Release pointer capture
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    } catch (err) {
+      // Ignore errors if already released
+    }
+    
+    // Only change state if no other pointers are active
+    if (activePointers.current.size === 0 && isPressed) {
       setIsPressed(false)
-      onPress(false)
-      
-      // Ensure pointer is released
-      try {
-        e.currentTarget.releasePointerCapture(e.pointerId)
-      } catch (err) {
-        // Ignore errors if pointer was already released
-      }
+      onPress(false) // Only emit release event once
     }
   }
   
   // For sliding behavior - handle when pointer enters while already pressed
   const handlePointerEnter = (e: React.PointerEvent) => {
-    // Only capture if a button is already being pressed (sliding behavior)
-    // We can detect this based on whether any pointer is active
+    e.stopPropagation() // Prevent event bubbling
+    
+    // Only process for sliding (when buttons are pressed)
     const isPressing = e.buttons > 0
     
-    if (isPressing && !isPressed) {
-      setIsPressed(true)
-      onPress(true)
+    if (isPressing && !activePointers.current.has(e.pointerId)) {
+      activePointers.current.add(e.pointerId)
+      
+      if (!isPressed) {
+        setIsPressed(true)
+        onPress(true) // Only emit press event once
+      }
+      
+      // Capture this pointer
       e.currentTarget.setPointerCapture(e.pointerId)
     }
   }
@@ -67,6 +107,7 @@ export default function GameButton({
       if (isPressed) {
         onPress(false)
       }
+      activePointers.current.clear()
     }
   }, [isPressed, onPress])
 
@@ -90,4 +131,3 @@ export default function GameButton({
     </button>
   )
 }
-
