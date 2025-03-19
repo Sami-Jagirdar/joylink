@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import QRCode from 'qrcode';
+import Connections from './connections.tsx';
 
 function App() {
   const [url, setUrl] = useState<string>("No Network Connection");
@@ -21,6 +22,7 @@ function App() {
       }
     })
   }, [])
+
   return (
     <>
       <h1>JoyLink</h1>
@@ -28,6 +30,9 @@ function App() {
         <p>{url}</p>
       </div>
       <canvas id="qrcode"></canvas>
+      <div>
+        <Connections/>
+      </div>
     </>
   )
 }

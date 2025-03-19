@@ -8,16 +8,43 @@ interface LayoutOneProps {
   socket: SocketIOClient.Socket;
 }
 
+function getDeviceType(socket: SocketIOClient.Socket) {
+  const ua = navigator.userAgent;
+  let deviceType = "";
+
+  if (/android/i.test(ua)) {
+    deviceType = "Android Device";
+  } else if (/iPhone|iPad|iPod/i.test(ua)) {
+    deviceType = "iOS Device";
+  } else {
+    deviceType = "Unkown Device Type";
+  }
+
+  return `${deviceType} | Socket ID - ${socket.id}`;
+}
+
 export default function VirtualGamepad({ socket }: LayoutOneProps) {
   const [connected, setConnected] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
+  const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
+  const [maxConnections, setMaxConnections] = useState(false);
 
   useEffect(() => {
     const handleConnect = () => setConnected(true);
     const handleDisconnect = () => setConnected(false);
+    const handleManualDisconnect = () => setManuallyDisconnected(true);
+    const handleMaxConnections = () => setMaxConnections(true);
+
+    const sendDeviceInfo = () => {
+      const deviceName = getDeviceType(socket);
+      socket.emit('device-info', { deviceName: deviceName });
+    };
 
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
+    socket.on("request-device-info", sendDeviceInfo);
+    socket.on("max-connections-reached", handleMaxConnections)
+    socket.on("manually-disconnect", handleManualDisconnect)
 
     // Check and update orientation
     const checkOrientation = () => {
@@ -64,7 +91,17 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
     <div className="fixed inset-0 bg-gray-900 w-full h-full overflow-hidden">
       <div className={`absolute top-2 right-2 flex items-center gap-2 ${connected ? "text-green-500" : "text-red-500"}`}>
         <div className={`h-3 w-3 rounded-full ${connected ? "bg-green-500" : "bg-red-500"}`}></div>
-        <span className="text-sm">{connected ? "Connected" : "Disconnected"}</span>
+        <span className="text-sm">
+          {maxConnections
+            ? "Max connections currently connected. You have been disconnected. You may now close this window."
+            : connected
+              // CHANGED: Updated the connected text to include device type and socket id
+              ? `${getDeviceType(socket)}: Connected`
+              : manuallyDisconnected
+                ? "Manually Disconnected. You may now close this window."
+                : "Disconnected"
+          }
+        </span>
       </div>
 
       <div className="h-full w-full flex flex-row items-center justify-between p-4">
