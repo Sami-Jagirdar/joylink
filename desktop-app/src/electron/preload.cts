@@ -23,4 +23,15 @@ contextBridge.exposeInMainWorld("electron", {
             callback(data);
         });
     },
+
+    sendManualDisconnect: (data: string) => {
+        console.log("Manual disconnect requested for:", data);
+        ipcRenderer.send('manually-disconnect', data);
+    },
+
+    listenForClientDeviceInformation: (callback: (data: string[]) => void) => {
+        ipcRenderer.on('setClientDeviceInformation', (_event, data) => {
+            callback(data);
+        });
+    },
 })

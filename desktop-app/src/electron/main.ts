@@ -7,6 +7,7 @@ import { ControllerLayout } from './controllers/ControllerLayout.js';
 import { KeyboardTarget, Mapping, MouseClickTarget } from '../../types.js';
 import {Key} from '@nut-tree-fork/nut-js'
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
+import { ipcMain } from 'electron';
 
 const mappings: Mapping[] = [
     {
@@ -50,6 +51,9 @@ const mappings: Mapping[] = [
         target: {type: 'keyboard', keybinding: [Key.D]}
     }
 ]
+
+const maxConnections = 1;
+const connectedClients: string[] = [];
 
 const initializeController = (controller: ControllerLayout) => {
     for (const mapping of mappings) {
@@ -95,7 +99,31 @@ app.on("ready", async () => {
     //TODO This block has no purpose yet, it is just to log live data from the controller
     if (server) {
         server.on('connection', async (socket) => {
+            // Check if maximum connections reached
+            if (connectedClients.length >= maxConnections) {
+                console.log('Maximum connections reached, rejecting new connection.');
+                socket.emit('max-connections-reached');
+                socket.disconnect(true);
+                return;
+            }
+
             console.log('A client connected');
+
+            // Request client to send device info
+            socket.emit('request-device-info');
+            
+            let clientDeviceName: string | null = null;
+            socket.on('device-info', async (data: { deviceName: string }) => {
+                console.log("Device Type: ", data.deviceName);
+                clientDeviceName = data.deviceName;
+                connectedClients.push(data.deviceName);
+
+                const mainWindow = BrowserWindow.getAllWindows()[0]; // Get the main window
+                if (mainWindow) {
+                    mainWindow.webContents.send('setClientDeviceInformation', connectedClients);
+                }
+            });
+
             initializeController(controllerLayout)
 
             socket.on('joystick-move', (data) => {
@@ -109,8 +137,43 @@ app.on("ready", async () => {
                 await controllerLayout.inputs.get(data.button)?.handleInput(data.pressed)
             })
 
+            ipcMain.on('manually-disconnect', (_event, data) => {
+                console.log(`Manually disconnecting: ${data}`);
+        
+                // Find and remove the client from connectedClients list
+                const index = connectedClients.indexOf(data);
+                if (index !== -1) {
+                    connectedClients.splice(index, 1);
+                }
+        
+                // Send updated list to UI
+                const mainWindow = BrowserWindow.getAllWindows()[0];
+                if (mainWindow) {
+                    mainWindow.webContents.send('setClientDeviceInformation', connectedClients);
+                }
+        
+                // Disconnect the socket
+                if (clientDeviceName === data) {
+                    console.log(`Disconnecting socket for: ${data}`);
+                    socket.emit('manually-disconnect');
+                    socket.disconnect(true);
+                }
+            });
+
             socket.on('disconnect', () => {
                 console.log('A client disconnected');
+                // Optional: remove client from the connectedClients list on disconnect
+                if (clientDeviceName) {
+                    const index = connectedClients.indexOf(clientDeviceName);
+                    if (index !== -1) {
+                        connectedClients.splice(index, 1);
+                    }
+                }
+
+                const mainWindow = BrowserWindow.getAllWindows()[0];
+                if (mainWindow) {
+                    mainWindow.webContents.send('setClientDeviceInformation', connectedClients);
+                }
             });
         });
 
