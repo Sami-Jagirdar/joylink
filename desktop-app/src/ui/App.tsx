@@ -9,10 +9,13 @@ import StartPage from './StartPage.tsx';
 function App() {
   
   return (
-    <Router  main = {
+    <Router  
+      main={
       <>
+      <Route path ="/">
         <Route path="/" element={<StartPage />} />
         <Route path="/connections" element={<Connections />} />
+      </Route>
         {/* <Route path="/customize-mappings" element={<CustomizeMappingsPage />} /> */}
       </>
     }

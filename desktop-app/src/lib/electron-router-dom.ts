@@ -1,7 +1,7 @@
 import { createElectronRouter } from 'electron-router-dom'
 
 export const { Router, registerRoute } = createElectronRouter({  
-  port: process.env.LOCAL_PORT ? Number(process.env.LOCAL_PORT): 7777, // the port of your React server is running on
+  port: 7777, // the port of your React server is running on
 
   types: {
     /**
