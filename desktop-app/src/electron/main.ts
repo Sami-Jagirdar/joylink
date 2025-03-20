@@ -11,7 +11,7 @@ import { ipcMain } from 'electron';
 import { isDev } from './util.js';
 
 
-const mappings: Mapping[] = [
+const mappingsLayoutA: Mapping[] = [
     {
         id: 'a',
         source: 'button',
@@ -58,7 +58,7 @@ const maxConnections = 1;
 const connectedClients: string[] = [];
 
 const initializeController = (controller: ControllerLayout) => {
-    for (const mapping of mappings) {
+    for (const mapping of mappingsLayoutA) {
         // console.log(mapping);
         if (mapping.source === 'button') {
             if (mapping.target.type === 'keyboard') {

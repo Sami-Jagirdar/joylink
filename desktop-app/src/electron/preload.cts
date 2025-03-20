@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { contextBridge, ipcRenderer } from 'electron';
+import { Mapping } from '../../types';
 
 contextBridge.exposeInMainWorld("electron", {
 
@@ -24,4 +25,14 @@ contextBridge.exposeInMainWorld("electron", {
             callback(data);
         });
     },
+
+    getControllerMappings: (callback: (data: Mapping[]) => void) => {
+        ipcRenderer.on('getControllerMappings', (_event, data) => {
+            callback(data);
+        });
+    },
+
+    setControllerMappings: (data: Mapping[]) => {
+        ipcRenderer.send('setControllerMappings', data);
+    }
 })
