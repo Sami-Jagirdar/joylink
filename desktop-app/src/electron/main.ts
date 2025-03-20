@@ -8,7 +8,7 @@ import { KeyboardTarget, Mapping, MouseClickTarget } from '../../types.js';
 import {Key} from '@nut-tree-fork/nut-js'
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
 import { ipcMain } from 'electron';
-import { registerRoute } from '../lib/electron-router-dom.js'
+import { isDev } from './util.js';
 
 
 const mappings: Mapping[] = [
@@ -78,23 +78,17 @@ app.on("ready", async () => {
             preload: getPreloadPath(),
         }
     });
-    registerRoute({
-        id: 'main',
-        browserWindow: mainWindow,
-        htmlFile: path.join(app.getAppPath(), "/dist-react/index.html"),
-      })
-
       
-    // if (isDev()) {
-    //     const port = process.env.LOCAL_PORT;
-    //     if (port) {
-    //         mainWindow.loadURL(`http://localhost:${port}`)
-    //     } else {
-    //         mainWindow.loadURL('http://localhost:7777')
-    //     }
-    // } else {
-    //     mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"))
-    // }
+    if (isDev()) {
+        const port = process.env.LOCAL_PORT;
+        if (port) {
+            mainWindow.loadURL(`http://localhost:${port}`)
+        } else {
+            mainWindow.loadURL('http://localhost:7777')
+        }
+    } else {
+        mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"))
+    }
     const serverUrl = await serveControllerApp();
     const [server, url] = serverUrl
     const controllerLayout = new ControllerLayout("LayoutA");

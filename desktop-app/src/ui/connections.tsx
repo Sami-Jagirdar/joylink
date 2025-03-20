@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 
-function Connections() {
+function Connections({ url }: { url: string }) {
   const [devices, setDevices] = useState<string[]>([]);
+  const qrCodeRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     // Listen for device updates from Electron
@@ -10,25 +11,19 @@ function Connections() {
       console.log("Updated Device List:", deviceNames);
       setDevices(deviceNames);
     });
+
   }, []);
 
-  const [url, setUrl] = useState<string>("No Network Connection");
   useEffect(() => {
-    window.electron.listenForControllerUrl((url) => {
-      if (url) {
-        setUrl(url);
+    if (url !== "No Network Connection" && qrCodeRef.current) {
+      QRCode.toCanvas(qrCodeRef.current, url, function (error) {
+        if (error) {
+          console.error('Error generating QR code:', error);
+        }
+      });
+    }
+  }, [url]);
 
-        const qrcodeElement = document.getElementById('qrcode') as HTMLCanvasElement;
-        QRCode.toCanvas(qrcodeElement, url, function (error) {
-          if (error) {
-              console.error('Error generating QR code:', error);
-          }
-        })
-      } else {
-        setUrl("No Network Connection");
-      }
-    })
-  }, [])
 
   const handleDisconnect = (deviceName: string) => {
     console.log(`Disconnecting ${deviceName}`);
@@ -43,7 +38,7 @@ function Connections() {
       <div>
         <p>{url}</p>
       </div>
-      <canvas id="qrcode"></canvas>
+      <canvas ref={qrCodeRef} id="qrcode"></canvas>
 
       <div className="p-4">
       <h2 className="text-lg font-bold mb-4">Connections</h2>
