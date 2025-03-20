@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
-import { isDev } from './util.js';
+// import { isDev } from './util.js';
 import { getPreloadPath } from './pathResolver.js';
 import { serveControllerApp } from './server.js';
 import { ControllerLayout } from './controllers/ControllerLayout.js';
@@ -8,6 +8,8 @@ import { KeyboardTarget, Mapping, MouseClickTarget } from '../../types.js';
 import {Key} from '@nut-tree-fork/nut-js'
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
 import { ipcMain } from 'electron';
+import { registerRoute } from '../lib/electron-router-dom.js'
+
 
 const mappings: Mapping[] = [
     {
@@ -76,16 +78,23 @@ app.on("ready", async () => {
             preload: getPreloadPath(),
         }
     });
-    if (isDev()) {
-        const port = process.env.LOCAL_PORT;
-        if (port) {
-            mainWindow.loadURL(`http://localhost:${port}`)
-        } else {
-            mainWindow.loadURL('http://localhost:7777')
-        }
-    } else {
-        mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"))
-    }
+    registerRoute({
+        id: 'main',
+        browserWindow: mainWindow,
+        htmlFile: path.join(app.getAppPath(), "/dist-react/index.html"),
+      })
+
+      
+    // if (isDev()) {
+    //     const port = process.env.LOCAL_PORT;
+    //     if (port) {
+    //         mainWindow.loadURL(`http://localhost:${port}`)
+    //     } else {
+    //         mainWindow.loadURL('http://localhost:7777')
+    //     }
+    // } else {
+    //     mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"))
+    // }
     const serverUrl = await serveControllerApp();
     const [server, url] = serverUrl
     const controllerLayout = new ControllerLayout("LayoutA");

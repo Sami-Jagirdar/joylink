@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import QRCode from 'qrcode';
 
 function Connections() {
   const [devices, setDevices] = useState<string[]>([]);
@@ -11,6 +12,24 @@ function Connections() {
     });
   }, []);
 
+  const [url, setUrl] = useState<string>("No Network Connection");
+  useEffect(() => {
+    window.electron.listenForControllerUrl((url) => {
+      if (url) {
+        setUrl(url);
+
+        const qrcodeElement = document.getElementById('qrcode') as HTMLCanvasElement;
+        QRCode.toCanvas(qrcodeElement, url, function (error) {
+          if (error) {
+              console.error('Error generating QR code:', error);
+          }
+        })
+      } else {
+        setUrl("No Network Connection");
+      }
+    })
+  }, [])
+
   const handleDisconnect = (deviceName: string) => {
     console.log(`Disconnecting ${deviceName}`);
 
@@ -19,7 +38,14 @@ function Connections() {
 };
 
   return (
-    <div className="p-4">
+    <>
+      <h1>JoyLink</h1>
+      <div>
+        <p>{url}</p>
+      </div>
+      <canvas id="qrcode"></canvas>
+
+      <div className="p-4">
       <h2 className="text-lg font-bold mb-4">Connections</h2>
       {devices.length === 0 ? (
         <p>No devices connected.</p>
@@ -39,6 +65,9 @@ function Connections() {
         </ul>
       )}
     </div>
+    </>
+
+    
   );
 }
 
