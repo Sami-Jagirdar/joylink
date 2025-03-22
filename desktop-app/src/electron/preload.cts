@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { contextBridge, ipcRenderer } from 'electron';
-import { Mapping } from '../../types';
+import { EventPayloadMapping, Mapping, Window } from '../../types.js';
 
 contextBridge.exposeInMainWorld("electron", {
-
-    // Use this as a template to create more APIs to send data from UI to Electron
-    sendData: (data: any) => ipcRenderer.send('set-data', data),
-
-    // Use this as a template to create more APIs to send data from Electron to UI
-    listenForControllerUrl: (callback: (data: any) => void) => {
+    listenForControllerUrl: (callback: (data: string) => void) => {
         ipcRenderer.on('setControllerUrl', (event, data) => {
             callback(data);
         });
+    },
+
+    getControllerUrl: async () => {
+        return await ipcInvoke('getControllerUrl');
     },
 
     sendManualDisconnect: (data: string) => {
@@ -26,13 +25,19 @@ contextBridge.exposeInMainWorld("electron", {
         });
     },
 
-    getControllerMappings: (callback: (data: Mapping[]) => void) => {
-        ipcRenderer.on('getControllerMappings', (_event, data) => {
-            callback(data);
-        });
+    getControllerMappings: async () => {
+        return await ipcInvoke('getControllerMappings');
     },
 
     setControllerMappings: (data: Mapping[]) => {
-        ipcRenderer.send('setControllerMappings', data);
+        ipcRenderer.send('set-controller-mappings', data);
     }
-})
+} satisfies Window["electron"]);
+
+// Wrapper for ipcRenderer.invoke to make it typesafe.
+// Ideally, should have similar wrappers for other ipcRenderer methods
+function ipcInvoke<Key extends keyof EventPayloadMapping>(
+    key: Key
+): Promise<EventPayloadMapping[Key]> {
+    return ipcRenderer.invoke(key)
+}

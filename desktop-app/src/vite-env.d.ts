@@ -5,8 +5,9 @@ declare global {
         electron: {
             listenForControllerUrl: (callback: (url: string) => void) => void;
             listenForClientDeviceInformation: (callback: (deviceInformation: string[]) => void) => void;
+            getControllerUrl: () => Promise<string>;
             sendManualDisconnect: (deviceName: string) => void; 
-            getControllerMappings: (callback: (mappings: Mapping[]) => void) => void;
+            getControllerMappings: () => Promise<Mapping[]>;
             setControllerMappings: (mappings: Mapping[]) => void;
             // Define other methods you expose via contextBridge here
         };

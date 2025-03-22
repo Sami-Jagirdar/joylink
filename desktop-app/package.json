@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "main": "dist-electron/main.js",
+  "type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel dev:react dev:electron",
     "dev:react": "vite",
@@ -17,6 +18,7 @@
   },
   "dependencies": {
     "@nut-tree-fork/nut-js": "^4.2.4",
+    "@tailwindcss/vite": "^4.0.15",
     "electron-router-dom": "^2.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -32,6 +34,7 @@
     "@typescript-eslint/eslint-plugin": "^7.13.1",
     "@typescript-eslint/parser": "^7.13.1",
     "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.21",
     "cross-env": "^7.0.3",
     "electron": "^34.3.0",
     "electron-builder": "^25.1.8",
@@ -40,9 +43,12 @@
     "eslint-plugin-react-refresh": "^0.4.7",
     "express": "^4.21.2",
     "npm-run-all": "^4.1.5",
+    "postcss": "^8.5.3",
     "qrcode": "^1.5.4",
     "socket.io": "^4.8.1",
-    "typescript": "^5.2.2",
+    "tailwindcss": "^4.0.15",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.2",
     "vite": "^5.3.1"
   }
 }

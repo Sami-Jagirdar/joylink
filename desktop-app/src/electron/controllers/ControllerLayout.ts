@@ -1,4 +1,4 @@
-import { ControllerInput } from "../controller-inputs/ControllerInput";
+import { ControllerInput } from "../controller-inputs/ControllerInput.js";
 
 export class ControllerLayout {
     protected id: string;

@@ -5,52 +5,64 @@ import { getPreloadPath } from './pathResolver.js';
 import { serveControllerApp } from './server.js';
 import { ControllerLayout } from './controllers/ControllerLayout.js';
 import { KeyboardTarget, Mapping, MouseClickTarget } from '../../types.js';
-import {Key} from '@nut-tree-fork/nut-js'
+import {Button, Key} from '@nut-tree-fork/nut-js'
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
 import { ipcMain } from 'electron';
-import { isDev } from './util.js';
+import { ipcHandle, isDev } from './util.js';
+
 
 
 const mappingsLayoutA: Mapping[] = [
     {
         id: 'a',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num4]}
+        target: {type: 'keyboard', keybinding: [Key.Num4]},
     },
     {
         id: 'b',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num5]}
+        target: {type: 'keyboard', keybinding: [Key.Num5]},
     }, 
     {
         id: 'x',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num8]}
+        target: {type: 'keyboard', keybinding: [Key.Num8]},
     },
     {
         id: 'y',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num9]}
+        target: {type: 'keyboard', keybinding: [Key.Num9]},
     },
     {
         id: 'up',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.W]}
+        target: {type: 'keyboard', keybinding: [Key.W]},
+        iconPath: '../assets/button-up.svg'
     },
     {
         id: 'down',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.S]}
+        target: {type: 'keyboard', keybinding: [Key.S]},
     },
     {
         id: 'left',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.A]}
+        target: {type: 'keyboard', keybinding: [Key.A]},
     },
     {
         id: 'right',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.D]}
+        target: {type: 'keyboard', keybinding: [Key.D]},
+    },
+    {
+        id: 'start',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.Home]},
+    },
+    {
+        id: 'select',
+        source: 'button',
+        target: {type: 'mouseClick', mouseClick: Button.LEFT},
     }
 ]
 
@@ -93,13 +105,18 @@ app.on("ready", async () => {
     const [server, url] = serverUrl
     const controllerLayout = new ControllerLayout("LayoutA");
 
-    mainWindow.webContents.on('did-finish-load', () => {
-        if (mainWindow) {
-            mainWindow.webContents.send('setControllerUrl', url);
-        }
+    if (mainWindow) {
+        mainWindow.webContents.send('setControllerUrl', url);
+    }
+
+    ipcHandle('getControllerUrl', () => {
+        return url;
     });
 
-    //TODO This block has no purpose yet, it is just to log live data from the controller
+    ipcHandle('getControllerMappings', () => {
+        return mappingsLayoutA;
+    });
+
     if (server) {
         server.on('connection', async (socket) => {
             // Check if maximum connections reached
@@ -134,9 +151,7 @@ app.on("ready", async () => {
             });
 
             socket.on('button', async (data: {button: string, pressed: boolean}) =>{
-                // console.log(controllerLayout.inputs.get('x'));
                 console.log(data.pressed);
-                // console.log(controllerLayout.inputs.get(data.buttonId)?.getMappingTarget())
                 await controllerLayout.inputs.get(data.button)?.handleInput(data.pressed)
             })
 
