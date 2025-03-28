@@ -4,7 +4,7 @@ import path from 'path';
 import { getPreloadPath } from './pathResolver.js';
 import { serveControllerApp } from './server.js';
 import { ControllerLayout } from './controllers/ControllerLayout.js';
-import { KeyboardTarget, Mapping, MouseClickTarget } from '../../types.js';
+import { KeyboardTarget, Mapping, MouseClickTarget } from '../types.js';
 import {Button, Key} from '@nut-tree-fork/nut-js'
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
 import { ipcMain } from 'electron';
@@ -37,7 +37,6 @@ const mappingsLayoutA: Mapping[] = [
         id: 'up',
         source: 'button',
         target: {type: 'keyboard', keybinding: [Key.W]},
-        iconPath: '../assets/button-up.svg'
     },
     {
         id: 'down',

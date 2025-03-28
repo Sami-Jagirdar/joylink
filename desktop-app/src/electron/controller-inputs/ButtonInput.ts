@@ -1,4 +1,4 @@
-import { KeyboardTarget, MouseClickTarget } from "../../../types.js";
+import { KeyboardTarget, MouseClickTarget } from "../../types.js";
 import { ControllerInput } from "./ControllerInput.js";
 import {keyboard, mouse} from "@nut-tree-fork/nut-js";
 keyboard.config.autoDelayMs = 5;

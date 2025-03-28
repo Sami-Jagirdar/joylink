@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { contextBridge, ipcRenderer } from 'electron';
-import { EventPayloadMapping, Mapping, Window } from '../../types.js';
+import { EventPayloadMapping, Mapping, Window } from '../types.js';
 
 contextBridge.exposeInMainWorld("electron", {
     listenForControllerUrl: (callback: (data: string) => void) => {

@@ -1,4 +1,4 @@
-import { OutputTarget } from "../../../types.js";
+import { OutputTarget } from "../../types.js";
 
 export abstract class ControllerInput {
     protected id: string; 

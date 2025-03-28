@@ -1,5 +1,5 @@
 import os from 'os';
-import { EventPayloadMapping } from '../../types.js';
+import { EventPayloadMapping } from '../types.js';
 import { ipcMain } from 'electron';
 
 export function isDev(): boolean {

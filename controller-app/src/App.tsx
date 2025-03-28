@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import LayoutOne from "./pages/LayoutOne";
 import { Joystick } from "react-joystick-component";
-import "./App.css";
 
 function App() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
