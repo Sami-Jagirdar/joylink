@@ -323,3 +323,7 @@ export const keyboardToKeyNumMap: Record<string, KeyNum> = {
       .filter(([key]) => key.startsWith('{'))
       .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
   };
+
+  export const keyNumToKeyboardMap: Record<KeyNum, string> = Object.fromEntries(
+    Object.entries(keyboardToKeyNumMap).map(([key, value]) => [value, key])
+  ) as Record<KeyNum, string>;

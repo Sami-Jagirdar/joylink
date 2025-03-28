@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useRef } from "react";
-import Keyboard from "react-simple-keyboard";
+import { useState, useRef, useEffect } from "react";
+import Keyboard, { } from "react-simple-keyboard";
 import "react-simple-keyboard/build/css/index.css";
-import "./index.css";
+import "../index.css";
+import { KeyboardTarget, Mapping } from "../../types";
+import { keyNumToKeyboardMap, KeyNum } from "../models";
 
 // Define the keyboard options interface
 interface KeyboardOptions {
@@ -21,9 +23,95 @@ interface KeyboardOptions {
   };
 }
 
-function KeyboardLayout() {
+interface KeyboardLayoutProps {
+  currentMapping?: Mapping;
+  allMappings: Mapping[];
+  // onMappingChange?: (newKeybinding: KeyNum[]) => void;
+}
+
+function KeyboardLayout({ currentMapping, allMappings, }: KeyboardLayoutProps) {
 
   const [layoutName, setLayoutName] = useState<string>("default");
+  const [selectedKeys, setSelectedKeys] = useState<KeyNum[]>([]);
+  const [unavailableKeys, setUnavailableKeys] = useState<KeyNum[]>([]);
+
+  useEffect(() => {
+    // Set selected keys from current mapping if it's a keyboard mapping
+    if (currentMapping && currentMapping.target.type === 'keyboard') {
+      const keys: KeyNum[] = [];
+      currentMapping.target.keybinding.forEach(keycap => {
+        const num = keycap.valueOf();
+        keys.push(num)
+      })
+      setSelectedKeys(keys);
+    } else {
+      setSelectedKeys([]);
+    }
+
+    // Collect unavailable keys from other mappings
+    const unavailable: KeyNum[] = [];
+    allMappings.forEach(mapping => {
+      if (
+        mapping.id !== currentMapping?.id && 
+        mapping.target.type === 'keyboard'
+      ) {
+        (mapping.target as KeyboardTarget).keybinding.forEach(key => {
+          const num: KeyNum = key.valueOf();
+          if (!unavailable.includes(num)) {
+            unavailable.push(num);
+          }
+        });
+      }
+    });
+    
+    setUnavailableKeys(unavailable);
+  }, [currentMapping, allMappings]);
+
+  useEffect(() => {
+    // Get all keyboard refs
+    const keyboardRefs = [
+      keyboardRef.current,
+      keyboardControlPadRef.current,
+      keyboardArrowRef.current,
+      keyboardNumPadRef.current,
+      keyboardNumPadEndRef.current
+    ];
+
+    // Clear all themes first
+
+    // Apply selected key theme
+    selectedKeys.forEach(key => {
+      const buttonStr = keyNumToKeyboardMap[key];
+      if (buttonStr) {
+        keyboardRefs.forEach(kbRef => {
+          if (kbRef) {
+            kbRef.addButtonTheme(buttonStr, "selected-key");
+            // Also apply to uppercase version if it's a letter
+            if (/^[a-z]$/.test(buttonStr)) {
+              kbRef.addButtonTheme(buttonStr.toUpperCase(), "selected-key");
+            }
+          }
+        });
+      }
+    });
+
+    // Apply unavailable key theme
+    unavailableKeys.forEach(key => {
+      const buttonStr = keyNumToKeyboardMap[key];
+      if (buttonStr) {
+        keyboardRefs.forEach(kbRef => {
+          if (kbRef) {
+            kbRef.addButtonTheme(buttonStr, "unavailable-key");
+            // Also apply to uppercase version if it's a letter
+            if (/^[a-z]$/.test(buttonStr)) {
+              kbRef.addButtonTheme(buttonStr.toUpperCase(), "unavailable-key");
+            }
+          }
+        });
+      }
+    });
+  }, [selectedKeys, unavailableKeys, layoutName]);
+
   
   // Have to use any because the node module itself is of any type and disables typescript eslint rule for this
   const keyboardRef = useRef<any>(null);
