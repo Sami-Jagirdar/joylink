@@ -3,8 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import Keyboard, { } from "react-simple-keyboard";
 import "react-simple-keyboard/build/css/index.css";
 import "../index.css";
-import { KeyboardTarget, Mapping } from "../../types";
-import { keyNumToKeyboardMap, KeyNum } from "../models";
+import { Mapping } from "../../types";
+import { keyNumToKeyboardMap, KeyNum, keyboardToKeyNumMap, modifiers } from "../models";
 
 // Define the keyboard options interface
 interface KeyboardOptions {
@@ -26,14 +26,14 @@ interface KeyboardOptions {
 interface KeyboardLayoutProps {
   currentMapping?: Mapping;
   allMappings: Mapping[];
-  // onMappingChange?: (newKeybinding: KeyNum[]) => void;
+  onMappingChange?: (newKeybinding: KeyNum[]) => void;
 }
 
-function KeyboardLayout({ currentMapping, allMappings, }: KeyboardLayoutProps) {
+function KeyboardLayout({ currentMapping, allMappings, onMappingChange}: KeyboardLayoutProps) {
 
   const [layoutName, setLayoutName] = useState<string>("default");
   const [selectedKeys, setSelectedKeys] = useState<KeyNum[]>([]);
-  const [unavailableKeys, setUnavailableKeys] = useState<KeyNum[]>([]);
+  const [unavailableKeys, ] = useState<KeyNum[]>([]);
 
   useEffect(() => {
     // Set selected keys from current mapping if it's a keyboard mapping
@@ -48,23 +48,26 @@ function KeyboardLayout({ currentMapping, allMappings, }: KeyboardLayoutProps) {
       setSelectedKeys([]);
     }
 
-    // Collect unavailable keys from other mappings
-    const unavailable: KeyNum[] = [];
-    allMappings.forEach(mapping => {
-      if (
-        mapping.id !== currentMapping?.id && 
-        mapping.target.type === 'keyboard'
-      ) {
-        (mapping.target as KeyboardTarget).keybinding.forEach(key => {
-          const num: KeyNum = key.valueOf();
-          if (!unavailable.includes(num)) {
-            unavailable.push(num);
-          }
-        });
-      }
-    });
-    
-    setUnavailableKeys(unavailable);
+    // The below code for getting unavailable keys is unnecessary
+    // Users should be able to map the same keys
+    // to different buttons if they want
+
+    // const unavailable: KeyNum[] = [];
+    // allMappings.forEach(mapping => {
+    //   if (
+    //     mapping.id !== currentMapping?.id && 
+    //     mapping.target.type === 'keyboard'
+    //   ) {
+    //     (mapping.target as KeyboardTarget).keybinding.forEach(key => {
+    //       const num: KeyNum = key.valueOf();
+    //       if (!unavailable.includes(num)) {
+    //         unavailable.push(num);
+    //       }
+    //     });
+    //   }
+    // });
+    // setUnavailableKeys(unavailable);
+
   }, [currentMapping, allMappings]);
 
   useEffect(() => {
@@ -76,8 +79,6 @@ function KeyboardLayout({ currentMapping, allMappings, }: KeyboardLayoutProps) {
       keyboardNumPadRef.current,
       keyboardNumPadEndRef.current
     ];
-
-    // Clear all themes first
 
     // Apply selected key theme
     selectedKeys.forEach(key => {
@@ -112,6 +113,46 @@ function KeyboardLayout({ currentMapping, allMappings, }: KeyboardLayoutProps) {
     });
   }, [selectedKeys, unavailableKeys, layoutName]);
 
+
+/* sortKeysByModifierPriority Generated with the help of Claude LLM
+  Prompt: export const modifiers: KeyNum[] = [
+    KeyNum.LeftControl,
+    KeyNum.RightControl,
+    KeyNum.LeftAlt,
+    KeyNum.RightAlt,
+    KeyNum.LeftShift,
+    KeyNum.RightShift,
+  ]
+
+  Basically the selected keys, if they contain any modifier, the modifier must be at the start and those modifiers must have the above order as well and then the other key can go after.
+
+  Eg: User clicks keys in the order: A -> LeftShift -> LeftControl
+  It must be reordered to LeftControl -> LeftShift -> A
+
+  The handleKeyPress function was also provided in the prompt*/
+const sortKeysByModifierPriority = (keys: KeyNum[]): KeyNum[] => {
+
+  const modifierKeys: KeyNum[] = [];
+  const nonModifierKeys: KeyNum[] = [];
+  
+  keys.forEach(key => {
+    if (modifiers.includes(key)) {
+      modifierKeys.push(key);
+    } else {
+      nonModifierKeys.push(key);
+    }
+  });
+  
+  // Sort modifiers according to their order in the modifiers array
+  modifierKeys.sort((a, b) => {
+    const indexA = modifiers.indexOf(a);
+    const indexB = modifiers.indexOf(b);
+    return indexA - indexB;
+  });
+  
+  // Return modifiers followed by non-modifiers
+  return [...modifierKeys, ...nonModifierKeys];
+};
   
   // Have to use any because the node module itself is of any type and disables typescript eslint rule for this
   const keyboardRef = useRef<any>(null);
@@ -120,7 +161,6 @@ function KeyboardLayout({ currentMapping, allMappings, }: KeyboardLayoutProps) {
   const keyboardNumPadRef = useRef<any>(null);
   const keyboardNumPadEndRef = useRef<any>(null);
 
-  // Define common keyboard options
   const getCommonKeyboardOptions = (): KeyboardOptions => ({
     onChange: handleChange,
     onKeyPress: handleKeyPress,
@@ -131,7 +171,6 @@ function KeyboardLayout({ currentMapping, allMappings, }: KeyboardLayoutProps) {
     debug: true
   });
 
-  // Define all keyboard options
   const getKeyboardOptions = (): KeyboardOptions => ({
     ...getCommonKeyboardOptions(),
     /**
@@ -218,13 +257,45 @@ function KeyboardLayout({ currentMapping, allMappings, }: KeyboardLayoutProps) {
   const handleKeyPress = (button: string): void => {
     console.log("Button pressed", button);
 
-    // Ideally, we find a way to know which keyboard reference called this method
-    // For now, since button is unique to each ref, only one of these is executes as expected
-    keyboardRef.current.addButtonTheme(button, "selected-key")
-    keyboardArrowRef.current.addButtonTheme(button, "selected-key")
-    keyboardControlPadRef.current.addButtonTheme(button, "selected-key")
-    keyboardNumPadRef.current.addButtonTheme(button,"selected-key")
-    keyboardNumPadEndRef.current.addButtonTheme(button, "selected-key")
+    if (unavailableKeys.includes(keyboardToKeyNumMap[button])) {
+      return;
+    }
+
+    if (selectedKeys.includes(keyboardToKeyNumMap[button])) {
+      // Ideally, we find a way to know which keyboard reference called this method
+      // For now, since button is unique to each ref, only one of these executes as expected
+      keyboardRef.current.removeButtonTheme(button, "selected-key")
+      keyboardArrowRef.current.removeButtonTheme(button, "selected-key")
+      keyboardControlPadRef.current.removeButtonTheme(button, "selected-key")
+      keyboardNumPadRef.current.removeButtonTheme(button,"selected-key")
+      keyboardNumPadEndRef.current.removeButtonTheme(button, "selected-key")
+
+      const newSelected = selectedKeys.filter(k => k !== keyboardToKeyNumMap[button]);
+      setSelectedKeys(newSelected);
+      if (onMappingChange) {
+        onMappingChange(newSelected);
+      }
+    } else {
+
+      if (selectedKeys.length >= 3) {
+        return; // Max 3 keys can be mapped
+      }
+
+      keyboardRef.current.addButtonTheme(button, "selected-key")
+      keyboardArrowRef.current.addButtonTheme(button, "selected-key")
+      keyboardControlPadRef.current.addButtonTheme(button, "selected-key")
+      keyboardNumPadRef.current.addButtonTheme(button,"selected-key")
+      keyboardNumPadEndRef.current.addButtonTheme(button, "selected-key")
+
+      const newSelected = [...selectedKeys, keyboardToKeyNumMap[button]]
+      const sortedKeys = sortKeysByModifierPriority(newSelected);
+
+      setSelectedKeys(sortedKeys)
+      if (onMappingChange) {
+        onMappingChange(sortedKeys);
+      }
+    }
+
   };
 
   const handleShift = (): void => {

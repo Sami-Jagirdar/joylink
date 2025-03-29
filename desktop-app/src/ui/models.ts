@@ -327,3 +327,12 @@ export const keyboardToKeyNumMap: Record<string, KeyNum> = {
   export const keyNumToKeyboardMap: Record<KeyNum, string> = Object.fromEntries(
     Object.entries(keyboardToKeyNumMap).map(([key, value]) => [value, key])
   ) as Record<KeyNum, string>;
+
+  export const modifiers: KeyNum[] = [
+    KeyNum.LeftControl,
+    KeyNum.RightControl,
+    KeyNum.LeftAlt,
+    KeyNum.RightAlt,
+    KeyNum.LeftShift,
+    KeyNum.RightShift,
+  ]

@@ -45,10 +45,6 @@ function Customize() {
         fetchMappings();
     }, []);
 
-    useEffect(() => {
-        window.electron.setControllerMappings(mappings);
-    }, [mappings]);
-
     //handler for the customize button
     const handleCustomize = (mapping: Mapping) => {
         console.log(`Customize button clicked for: ${mapping.id}`);
@@ -64,15 +60,29 @@ function Customize() {
         openModal()
     }
 
+    const handleButtonMappingSave = (updatedMapping: Mapping) => {
+        const updatedMappings = mappings.map(mapping => 
+            mapping.id === updatedMapping.id ? updatedMapping : mapping
+        )
+        setMappings(prevMappings => 
+            prevMappings.map(mapping => 
+              mapping.id === updatedMapping.id ? updatedMapping : mapping
+            )
+        );
+
+        console.log(updatedMapping)
+        window.electron.setControllerMappings(updatedMappings);
+    }
+
     // Render key binding pills
     const renderKeyBindings = (keybinding: typeof Key[keyof typeof Key][]) => {
         const pills = [];
         
         // Create 5 pills (some may be empty)
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 3; i++) {
             const key = keybinding[i];
             pills.push(
-                <div key={i} className={`w-1/6 h-10 rounded-md flex items-center justify-center ${key ? 'bg-neutral-900 border border-blue-300' : 'bg-neutral-900 border border-neutral-400'}`}>
+                <div key={i} className={`w-1/4 h-10 rounded-md flex items-center justify-center ${key ? 'bg-neutral-900 border border-blue-300' : 'bg-neutral-900 border border-neutral-400'}`}>
                     {KeyNum[key] || ''}
                 </div>
             );
@@ -89,7 +99,7 @@ function Customize() {
     const renderMouseClickBindings = (mouseClick: typeof Button[keyof typeof Button]) => {
         return (
             <div className="flex space-x-5">
-                <div className="w-1/6 h-10 rounded-md flex items-center justify-center bg-neutral-900 border border-green-300">
+                <div className="w-1/4 h-10 rounded-md flex items-center justify-center bg-neutral-900 border border-green-300">
                     {ButtonNum[mouseClick]}
                 </div>
             </div>
@@ -169,6 +179,7 @@ function Customize() {
                 onClose={closeModal} 
                 mappings={mappings}
                 selectedMapping={selectedMapping} 
+                onSave={handleButtonMappingSave}
             />
 
         </div>

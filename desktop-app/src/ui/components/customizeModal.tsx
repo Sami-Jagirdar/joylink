@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import KeyboardLayout from './keyboard'; // Import your keyboard component
 import { Mapping } from '../../types';
+import { KeyNum } from '../models';
+import {Key} from "@nut-tree-fork/nut-js";
 
 interface CustomizeModalProps {
   isOpen: boolean;
   onClose: () => void;
   mappings: Mapping[];
   selectedMapping: Mapping;
-
+  onSave: (updatedMapping: Mapping) => void;
 }
 
 // TabOption component for the modal tabs
@@ -32,8 +34,38 @@ const TabOption = ({
   </button>
 );
 
-function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping }: CustomizeModalProps) {
-  const [selectedTab, setSelectedTab] = useState<'mouse' | 'keyboard'>('mouse');
+function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }: CustomizeModalProps) {
+  const [selectedTab, setSelectedTab] = useState<'mouse' | 'keyboard'>('keyboard');
+  const [tempKeybinding, setTempKeybinding] = useState<KeyNum[]>([])
+
+  const handleKeybindingChange = (newKeys: KeyNum[]) => {
+    console.log(`new keys: ${JSON.stringify(newKeys)}`)
+    setTempKeybinding(newKeys);
+  };
+
+  const handleSave = () => {
+    if (!selectedMapping) {return;}
+
+    if (selectedTab === 'keyboard') {
+      const keybinding: Key[] = []
+      tempKeybinding.forEach(key => {
+        keybinding.push(key.valueOf())
+      })
+      
+      onSave({
+        ...selectedMapping,
+        target: {
+          type: 'keyboard',
+          keybinding: keybinding
+        }
+      })
+    } else {
+      // TODO: Handle mouse click save
+    }
+
+    onClose();
+    }
+
 
   if (!isOpen) return null;
 
@@ -56,14 +88,14 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping }: Customi
         {/* Tab Navigation */}
         <div className="flex border-b border-neutral-700">
           <TabOption 
-            label="Mouse" 
-            isActive={selectedTab === 'mouse'} 
-            onClick={() => setSelectedTab('mouse')} 
-          />
-          <TabOption 
             label="Keyboard" 
             isActive={selectedTab === 'keyboard'} 
             onClick={() => setSelectedTab('keyboard')} 
+          />
+          <TabOption 
+            label="Mouse" 
+            isActive={selectedTab === 'mouse'} 
+            onClick={() => setSelectedTab('mouse')} 
           />
         </div>
 
@@ -89,7 +121,10 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping }: Customi
               
               {/* Keyboard Component */}
               <div className="bg-neutral-800 rounded-md p-4">
-                <KeyboardLayout currentMapping={selectedMapping} allMappings={mappings}/>
+                <KeyboardLayout 
+                currentMapping={selectedMapping} 
+                allMappings={mappings} 
+                onMappingChange={handleKeybindingChange}/>
               </div>
             </div>
           )}
@@ -105,6 +140,7 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping }: Customi
           </button>
           <button 
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500"
+            onClick={handleSave}
           >
             Save Changes
           </button>

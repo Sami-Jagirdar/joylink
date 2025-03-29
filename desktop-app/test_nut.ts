@@ -5,13 +5,13 @@ async function testKeyboard() {
     // await keyboard.pressKey(Key.A);
     // await keyboard.pressKey(Key.B);
 
-    await keyboard.pressKey(...[Key['LeftControl'],Key['A']]);
+    await keyboard.pressKey(...[Key['S'],Key['A']]);
   
     await new Promise((resolve) => setTimeout(resolve, 2000));
   
     console.log("Releasing 'A' key...");
     // await keyboard.releaseKey(Key.A);
-    await keyboard.releaseKey(Key['LeftControl'],Key['A']);
+    await keyboard.releaseKey(Key['S'],Key['A']);
   }
   
   testKeyboard().catch(console.error);

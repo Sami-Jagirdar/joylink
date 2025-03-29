@@ -12,4 +12,8 @@ export class ControllerLayout {
         this.inputs.set(input.getId(), input)
     }
 
+    clearInputs(): void {
+        this.inputs.clear();
+    }
+
 }

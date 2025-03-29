@@ -35,10 +35,10 @@ type EventPayloadMapping = {
 interface Window {
     electron: {
         getControllerMappings: () => Promise<Mapping[]>;
-        setControllerMappings: (data: Mapping[]) => void;
         listenForClientDeviceInformation: (callback: (data: string[]) => void) => void;
         sendManualDisconnect: (data: string) => void;
         listenForControllerUrl: (callback: (data: string) => void) => void;
         getControllerUrl: () => Promise<string>;
+        setControllerMappings: (mappings: Mapping[]) => void;
     };
 }

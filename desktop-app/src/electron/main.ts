@@ -10,9 +10,8 @@ import { ButtonInput } from './controller-inputs/ButtonInput.js';
 import { ipcMain } from 'electron';
 import { ipcHandle, isDev } from './util.js';
 
-
-
-const mappingsLayoutA: Mapping[] = [
+// This should ideally be a constant and we should wrap it in a class or object and mutate it via those objects for data integrity
+let mappingsLayoutA: Mapping[] = [
     {
         id: 'a',
         source: 'button',
@@ -68,9 +67,9 @@ const mappingsLayoutA: Mapping[] = [
 const maxConnections = 1;
 const connectedClients: string[] = [];
 
-const initializeController = (controller: ControllerLayout) => {
-    for (const mapping of mappingsLayoutA) {
-        // console.log(mapping);
+const initializeControllerA = (controller: ControllerLayout, mappings: Mapping[]) => {
+    controller.clearInputs();
+    for (const mapping of mappings) {
         if (mapping.source === 'button') {
             if (mapping.target.type === 'keyboard') {
                 const buttonInput = new ButtonInput(mapping.id, mapping.target as KeyboardTarget);
@@ -116,6 +115,11 @@ app.on("ready", async () => {
         return mappingsLayoutA;
     });
 
+    ipcMain.on('set-controller-mappings',  (_event, data) => {
+        mappingsLayoutA = data;
+        initializeControllerA(controllerLayout, data);
+    })
+
     if (server) {
         server.on('connection', async (socket) => {
             // Check if maximum connections reached
@@ -143,7 +147,7 @@ app.on("ready", async () => {
                 }
             });
 
-            initializeController(controllerLayout)
+            initializeControllerA(controllerLayout, mappingsLayoutA)
 
             socket.on('joystick-move', (data) => {
                 console.log('Joystick moved:', data);
