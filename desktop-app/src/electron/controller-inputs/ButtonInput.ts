@@ -1,7 +1,7 @@
-import { KeyboardTarget, MouseClickTarget } from "../../../types";
-import { ControllerInput } from "./ControllerInput";
+import { KeyboardTarget, MouseClickTarget } from "../../types.js";
+import { ControllerInput } from "./ControllerInput.js";
 import {keyboard, mouse} from "@nut-tree-fork/nut-js";
-keyboard.config.autoDelayMs = 5;
+keyboard.config.autoDelayMs = 0;
 
 export class ButtonInput extends ControllerInput {
     constructor(id: string, mappingTarget: KeyboardTarget | MouseClickTarget) {
@@ -20,10 +20,13 @@ export class ButtonInput extends ControllerInput {
         const {keybinding} = this.mappingTarget as KeyboardTarget;
         if (pressed) {
             console.log("pressing", keybinding)
+            // For multiple keys, the below  works well for key bindings like Shift+a, 
+            // but not for something like q + w
             await keyboard.pressKey(...keybinding)
         } else {
             console.log("releasing", keybinding)
             await keyboard.releaseKey(...keybinding)
+
         }
     }
 

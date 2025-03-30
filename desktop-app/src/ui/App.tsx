@@ -1,39 +1,21 @@
-import { useState, useEffect } from 'react'
-import './App.css'
-import QRCode from 'qrcode';
-import Connections from './connections.tsx';
+import Connections from './pages/connections.tsx';
+import StartPage from './pages/start.tsx';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Customize from './pages/customize.tsx';
+
+
 
 function App() {
-  const [url, setUrl] = useState<string>("No Network Connection");
-  useEffect(() => {
-    window.electron.listenForControllerUrl((url: any) => {
-      if (url) {
-        setUrl(url);
-
-        const qrcodeElement = document.getElementById('qrcode') as HTMLCanvasElement;
-        QRCode.toCanvas(qrcodeElement, url, function (error: any) {
-          if (error) {
-              console.error('Error generating QR code:', error);
-          }
-          //console.log('QR code generated!');
-        })
-      } else {
-        setUrl("No Network Connection");
-      }
-    })
-  }, [])
 
   return (
-    <>
-      <h1>JoyLink</h1>
-      <div>
-        <p>{url}</p>
-      </div>
-      <canvas id="qrcode"></canvas>
-      <div>
-        <Connections/>
-      </div>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<StartPage />} />
+        <Route path="/connections" element={<Connections/>} />
+        <Route path="/customize" element={<Customize />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   )
 }
 

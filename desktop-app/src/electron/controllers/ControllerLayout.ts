@@ -1,4 +1,4 @@
-import { ControllerInput } from "../controller-inputs/ControllerInput";
+import { ControllerInput } from "../controller-inputs/ControllerInput.js";
 
 export class ControllerLayout {
     protected id: string;
@@ -10,6 +10,10 @@ export class ControllerLayout {
 
     addInput(input: ControllerInput): void {
         this.inputs.set(input.getId(), input)
+    }
+
+    clearInputs(): void {
+        this.inputs.clear();
     }
 
 }

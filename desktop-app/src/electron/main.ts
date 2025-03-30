@@ -1,63 +1,75 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
-import { isDev } from './util.js';
+// import { isDev } from './util.js';
 import { getPreloadPath } from './pathResolver.js';
 import { serveControllerApp } from './server.js';
 import { ControllerLayout } from './controllers/ControllerLayout.js';
-import { KeyboardTarget, Mapping, MouseClickTarget } from '../../types.js';
-import {Key} from '@nut-tree-fork/nut-js'
+import { KeyboardTarget, Mapping, MouseClickTarget } from '../types.js';
+import {Button, Key} from '@nut-tree-fork/nut-js'
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
 import { ipcMain } from 'electron';
+import { ipcHandle, isDev } from './util.js';
 
-const mappings: Mapping[] = [
+// This should ideally be a constant and we should wrap it in a class or object and mutate it via those objects for data integrity
+let mappingsLayoutA: Mapping[] = [
     {
         id: 'a',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num4]}
+        target: {type: 'keyboard', keybinding: [Key.Num4]},
     },
     {
         id: 'b',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num5]}
+        target: {type: 'keyboard', keybinding: [Key.Num5]},
     }, 
     {
         id: 'x',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num8]}
+        target: {type: 'keyboard', keybinding: [Key.Num8]},
     },
     {
         id: 'y',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num9]}
+        target: {type: 'keyboard', keybinding: [Key.Num9]},
     },
     {
         id: 'up',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.W]}
+        target: {type: 'keyboard', keybinding: [Key.W]},
     },
     {
         id: 'down',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.S]}
+        target: {type: 'keyboard', keybinding: [Key.S]},
     },
     {
         id: 'left',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.A]}
+        target: {type: 'keyboard', keybinding: [Key.A]},
     },
     {
         id: 'right',
         source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.D]}
+        target: {type: 'keyboard', keybinding: [Key.D]},
+    },
+    {
+        id: 'start',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.Home]},
+    },
+    {
+        id: 'select',
+        source: 'button',
+        target: {type: 'mouseClick', mouseClick: Button.LEFT},
     }
 ]
 
 const maxConnections = 1;
 const connectedClients: string[] = [];
 
-const initializeController = (controller: ControllerLayout) => {
+const initializeControllerA = (controller: ControllerLayout, mappings: Mapping[]) => {
+    controller.clearInputs();
     for (const mapping of mappings) {
-        // console.log(mapping);
         if (mapping.source === 'button') {
             if (mapping.target.type === 'keyboard') {
                 const buttonInput = new ButtonInput(mapping.id, mapping.target as KeyboardTarget);
@@ -76,6 +88,7 @@ app.on("ready", async () => {
             preload: getPreloadPath(),
         }
     });
+      
     if (isDev()) {
         const port = process.env.LOCAL_PORT;
         if (port) {
@@ -90,13 +103,23 @@ app.on("ready", async () => {
     const [server, url] = serverUrl
     const controllerLayout = new ControllerLayout("LayoutA");
 
-    mainWindow.webContents.on('did-finish-load', () => {
-        if (mainWindow) {
-            mainWindow.webContents.send('setControllerUrl', url);
-        }
+    if (mainWindow) {
+        mainWindow.webContents.send('setControllerUrl', url);
+    }
+
+    ipcHandle('getControllerUrl', () => {
+        return url;
     });
 
-    //TODO This block has no purpose yet, it is just to log live data from the controller
+    ipcHandle('getControllerMappings', () => {
+        return mappingsLayoutA;
+    });
+
+    ipcMain.on('set-controller-mappings',  (_event, data) => {
+        mappingsLayoutA = data;
+        initializeControllerA(controllerLayout, data);
+    })
+
     if (server) {
         server.on('connection', async (socket) => {
             // Check if maximum connections reached
@@ -124,16 +147,14 @@ app.on("ready", async () => {
                 }
             });
 
-            initializeController(controllerLayout)
+            initializeControllerA(controllerLayout, mappingsLayoutA)
 
             socket.on('joystick-move', (data) => {
                 console.log('Joystick moved:', data);
             });
 
             socket.on('button', async (data: {button: string, pressed: boolean}) =>{
-                // console.log(controllerLayout.inputs.get('x'));
                 console.log(data.pressed);
-                // console.log(controllerLayout.inputs.get(data.buttonId)?.getMappingTarget())
                 await controllerLayout.inputs.get(data.button)?.handleInput(data.pressed)
             })
 

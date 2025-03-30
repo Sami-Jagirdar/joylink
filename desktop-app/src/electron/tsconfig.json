@@ -5,6 +5,7 @@
         "module": "NodeNext",
         "outDir": "../../dist-electron",
         "skipLibCheck": true,
-        "types": ["../../types.d.ts"]
+        "types": ["../types.d.ts"],
+        "allowImportingTsExtensions": false,
     }
 }
