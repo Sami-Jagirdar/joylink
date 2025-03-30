@@ -72,6 +72,10 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
 
   const handleButtonEvent = (buttonId: string, isPressed: boolean) => {
     if (connected) {
+
+      // Haptics for button press (Only works for Chrome and Edge)
+      navigator.vibrate(75);
+
       socket.emit("button", { button: buttonId, pressed: isPressed });
       console.log(`Button ${buttonId} ${isPressed ? "pressed" : "released"}`);
     }
@@ -90,6 +94,13 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
       console.log(`Joystick ${joystickId} stopped`);
     }
   };
+
+  // Haptics for when joystick starts moving, for Chrome and Edge only
+  const handleJoystickStart = () => {
+    if (connected) {
+      navigator.vibrate(75);
+    }
+  }
 
   if (!isLandscape) {
     return (
@@ -133,7 +144,7 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
           </div>
 
           {/* Center - Start/Options buttons */}
-          <div className="flex flex-row items-center justify-center gap-8 translate-y-1/2">
+          <div className="flex flex-row items-center justify-center gap-8 translate-y-1/3">
             {/* Left Joystick */}
           <div className="flex flex-col items-center">
                 <GameButton 
@@ -145,14 +156,15 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
                     className="h-[20px] w-[80px] rounded-full px-2 py-1 text-xs" 
                     />
                 
-                <div className="mb-1 text-white text-xs translate-y-12 -translate-x-10">Left</div>
-                <div className="h-24 w-24 flex items-center justify-center translate-y-12 -translate-x-10">
+                <div className="mb-1 text-white text-xs translate-y-10 -translate-x-10">Left</div>
+                <div className="h-24 w-24 flex items-center justify-center translate-y-10 -translate-x-10">
                 <Joystick 
-                    size={80} 
+                    size={90} 
                     baseColor="#333333" 
                     stickColor="#666666" 
                     move={(data) => handleJoystickMove("left-analog", data)} 
                     stop={() => handleJoystickStop("left-analog")}
+                    start={() => handleJoystickStart()}
                 />
             </div>
           </div>
@@ -167,14 +179,15 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
                 onPress={(isPressed) => handleButtonEvent("select", isPressed)} 
                 className="h-[20px] w-[80px] rounded-full px-2 py-1 text-xs" 
                 />
-                <div className="mb-1 text-white text-xs translate-y-12 translate-x-10">Right</div>
-                <div className="h-24 w-24 flex items-center justify-center translate-y-12 translate-x-10">
+                <div className="mb-1 text-white text-xs translate-y-10 translate-x-10">Right</div>
+                <div className="h-24 w-24 flex items-center justify-center translate-y-10 translate-x-10">
                 <Joystick 
-                    size={80} 
+                    size={90} 
                     baseColor="#333333" 
                     stickColor="#666666" 
                     move={(data) => handleJoystickMove("right-analog", data)} 
                     stop={() => handleJoystickStop("right-analog")}
+                    start={() => handleJoystickStart()}
                 />
                 </div>
             </div>
