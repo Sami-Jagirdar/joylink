@@ -113,7 +113,7 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
         {/* Center - Start/Options buttons */}
         <div className="flex flex-row items-center justify-center gap-8">
           <GameButton name="start" label="START" color="bg-[#4E4848]" textColor="text-white" onPress={(isPressed) => handleButtonEvent("start", isPressed)} className="h-[20px] w-[80px] rounded-full px-2 py-1 text-xs" />
-          <GameButton name="options" label="OPTIONS" color="bg-[#4E4848]" textColor="text-white" onPress={(isPressed) => handleButtonEvent("options", isPressed)} className="h-[20px] w-[80px] rounded-full px-2 py-1 text-xs" />
+          <GameButton name="select" label="SELECT" color="bg-[#4E4848]" textColor="text-white" onPress={(isPressed) => handleButtonEvent("select", isPressed)} className="h-[20px] w-[80px] rounded-full px-2 py-1 text-xs" />
         </div>
 
         {/* Right side - Action buttons */}
