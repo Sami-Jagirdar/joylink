@@ -1,4 +1,4 @@
-import { KeyboardTarget, MouseMotionTarget, Coordinates } from "../../types.js";
+import { MouseMotionTarget, Coordinates, AnalogKeyboardTarget } from "../../types.js";
 import { ControllerInput } from "./ControllerInput.js";
 import {keyboard, mouse, Point, screen} from "@nut-tree-fork/nut-js"
 keyboard.config.autoDelayMs = 0;
@@ -16,7 +16,7 @@ export class AnalogInput extends ControllerInput {
     private isMoving: boolean = false;
     private screenWidth: number = 1600;
     private screenHeight: number = 900;
-    constructor(id: string, mappingTarget: MouseMotionTarget | KeyboardTarget) {
+    constructor(id: string, mappingTarget: MouseMotionTarget | AnalogKeyboardTarget) {
         super(id, mappingTarget)
     }
 
@@ -42,13 +42,16 @@ export class AnalogInput extends ControllerInput {
         this.currentPosition = position;
         
         // Need the stopMotion to stop the interval
-        if (!this.isMoving) {
-            this.startMotion();
-        } else if (this.currentPosition.x===0 && this.currentPosition.y===0) {
-            this.stopMotion();
+        if (this.mappingTarget.type === "mouseMotion") {
+            if (!this.isMoving) {
+                this.startMotion();
+            } else if (this.currentPosition.x===0 && this.currentPosition.y===0) {
+                this.stopMotion();
+            }
+        } else if (this.mappingTarget.type === "analogKeyboard") {
+            this.handleKeyboardInput();
         }
-
-
+        
     }
 
     async startMotion(): Promise<void> {
@@ -61,11 +64,7 @@ export class AnalogInput extends ControllerInput {
         
         // Set up interval for continuous movement
         this.moveInterval = setInterval(async () => {
-            if (this.mappingTarget.type === "mouseMotion") {
-                await this.handleMouseMotionInput();
-            } else if (this.mappingTarget.type === "keyboard") {
-                await this.handleKeyboardInput();
-            }
+            await this.handleMouseMotionInput();
         }, 16); // ~60fps updates
     } 
 
@@ -81,9 +80,6 @@ export class AnalogInput extends ControllerInput {
 
         this.lastPosition = await mouse.getPosition();
 
-        // position.x*=this.sensitivity;
-        // position.y*=this.sensitivity;
-
         const point_x = Math.max(Math.min(this.lastPosition.x + this.currentPosition.x*this.sensitivity, this.screenWidth), 0)
         const point_y = Math.max(Math.min(this.lastPosition.y - this.currentPosition.y*this.sensitivity, this.screenHeight), 0)
 
@@ -96,13 +92,33 @@ export class AnalogInput extends ControllerInput {
         this.lastPosition.y = point_y;
     }
 
+    private async handleKeyboardInput() {
+        const {positiveX, positiveY, negativeX, negativeY} = this.mappingTarget as AnalogKeyboardTarget
+        if (this.currentPosition.x === 0) {
+            await keyboard.releaseKey(...positiveX, ...negativeX);
+        }
+        if (this.currentPosition.y === 0) {
+            await keyboard.releaseKey(...positiveY, ...negativeY);
+        }
+
+        if (this.currentPosition.x > this.deadzone) {
+            await keyboard.pressKey(...positiveX);
+        } else if (this.currentPosition.x < -this.deadzone) {
+            await keyboard.pressKey(...negativeX);
+        }
+
+        if (this.currentPosition.y > this.deadzone) {
+            await keyboard.pressKey(...positiveY);
+        } else if (this.currentPosition.y < -this.deadzone) {
+            await keyboard.pressKey(...negativeY);
+        }
+        
+    }
+
     setSensitivity(sensitivity: number): void {
         if (sensitivity > 0) {
             this.sensitivity = sensitivity;
         }
     }
 
-    private async handleKeyboardInput() {
-
-    }
 }

@@ -145,7 +145,8 @@ function Customize() {
                                 }`}>
                                     {mapping.target.type === 'keyboard' ? 'Keyboard' : 
                                     mapping.target.type === 'mouseClick' ? 'Mouse Click' : 
-                                    'Mouse Motion'}
+                                    mapping.target.type === 'mouseMotion' ? 'Mouse Motion':
+                                    'Analog Keyboard'}
                                 </span>
                             </div>
                             {mapping.target.type === 'keyboard' && renderKeyBindings(mapping.target.keybinding)}

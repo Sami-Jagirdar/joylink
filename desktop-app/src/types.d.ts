@@ -2,7 +2,7 @@ import {Key, Button} from "@nut-tree-fork/nut-js";
 
 type InputType = 'button' | 'analog' | 'motion' | 'voice'
 
-type OutputTarget = KeyboardTarget | MouseClickTarget | MouseMotionTarget
+type OutputTarget = KeyboardTarget | MouseClickTarget | MouseMotionTarget | AnalogKeyboardTarget
 
 interface KeyboardTarget {
     type: 'keyboard';
@@ -17,6 +17,14 @@ interface MouseClickTarget {
 interface MouseMotionTarget {
     type: 'mouseMotion';
     sensitivity: number;
+}
+
+interface AnalogKeyboardTarget {
+    type: 'analogKeyboard';
+    positiveX: Key[];
+    positiveY: Key[];
+    negativeX: Key[];
+    negativeY: Key[];
 }
 
 interface Mapping {

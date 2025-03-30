@@ -4,7 +4,7 @@ import path from 'path';
 import { getPreloadPath } from './pathResolver.js';
 import { serveControllerApp } from './server.js';
 import { ControllerLayout } from './controllers/ControllerLayout.js';
-import { KeyboardTarget, Mapping, MouseClickTarget, MouseMotionTarget, Coordinates } from '../types.js';
+import { KeyboardTarget, Mapping, MouseClickTarget, MouseMotionTarget, Coordinates, AnalogKeyboardTarget } from '../types.js';
 import {Button, Key} from '@nut-tree-fork/nut-js'
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
 import { ipcMain } from 'electron';
@@ -66,7 +66,15 @@ let mappingsLayoutA: Mapping[] = [
     {
         id: 'right-analog',
         source: 'analog',
-        target: {type: 'mouseMotion', sensitivity: 25}
+        target: {type: 'mouseMotion', sensitivity: 15}
+    },
+    {
+        id: 'left-analog',
+        source: 'analog',
+        target: {type: 'analogKeyboard', 
+            positiveX: [Key.D], positiveY: [Key.W], 
+            negativeX: [Key.A], negativeY: [Key.S]
+        }
     }
 ]
 
@@ -91,8 +99,8 @@ const initializeControllerA = async (controller: ControllerLayout, mappings: Map
                 analogInput.setSensitivity(mapping.target.sensitivity);
                 await analogInput.setScreenDimensions();
                 controller.addInput(analogInput);
-            } else if (mapping.target.type === 'keyboard') {
-                const analogInput = new AnalogInput(mapping.id, mapping.target as KeyboardTarget);
+            } else if (mapping.target.type === 'analogKeyboard') {
+                const analogInput = new AnalogInput(mapping.id, mapping.target as AnalogKeyboardTarget);
                 controller.addInput(analogInput);
             }
         }
