@@ -26,6 +26,12 @@ interface Mapping {
     iconPath?: string;
 }
 
+type Coordinates = {
+    x: number;
+    y: number;
+}
+
+
 // To make IPC typesafe
 type EventPayloadMapping = {
     getControllerMappings: Mapping[];

@@ -151,8 +151,8 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
                     size={80} 
                     baseColor="#333333" 
                     stickColor="#666666" 
-                    move={(data) => handleJoystickMove("left", data)} 
-                    stop={() => handleJoystickStop("left")}
+                    move={(data) => handleJoystickMove("left-analog", data)} 
+                    stop={() => handleJoystickStop("left-analog")}
                 />
             </div>
           </div>
@@ -173,8 +173,8 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
                     size={80} 
                     baseColor="#333333" 
                     stickColor="#666666" 
-                    move={(data) => handleJoystickMove("right", data)} 
-                    stop={() => handleJoystickStop("right")}
+                    move={(data) => handleJoystickMove("right-analog", data)} 
+                    stop={() => handleJoystickStop("right-analog")}
                 />
                 </div>
             </div>

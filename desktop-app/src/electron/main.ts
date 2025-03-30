@@ -4,11 +4,12 @@ import path from 'path';
 import { getPreloadPath } from './pathResolver.js';
 import { serveControllerApp } from './server.js';
 import { ControllerLayout } from './controllers/ControllerLayout.js';
-import { KeyboardTarget, Mapping, MouseClickTarget } from '../types.js';
+import { KeyboardTarget, Mapping, MouseClickTarget, MouseMotionTarget, Coordinates } from '../types.js';
 import {Button, Key} from '@nut-tree-fork/nut-js'
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
 import { ipcMain } from 'electron';
 import { ipcHandle, isDev } from './util.js';
+import { AnalogInput } from './controller-inputs/AnaogInput.js';
 
 // This should ideally be a constant and we should wrap it in a class or object and mutate it via those objects for data integrity
 let mappingsLayoutA: Mapping[] = [
@@ -61,13 +62,18 @@ let mappingsLayoutA: Mapping[] = [
         id: 'select',
         source: 'button',
         target: {type: 'mouseClick', mouseClick: Button.LEFT},
+    },
+    {
+        id: 'right-analog',
+        source: 'analog',
+        target: {type: 'mouseMotion', sensitivity: 25}
     }
 ]
 
 const maxConnections = 1;
 const connectedClients: string[] = [];
 
-const initializeControllerA = (controller: ControllerLayout, mappings: Mapping[]) => {
+const initializeControllerA = async (controller: ControllerLayout, mappings: Mapping[]) => {
     controller.clearInputs();
     for (const mapping of mappings) {
         if (mapping.source === 'button') {
@@ -77,6 +83,17 @@ const initializeControllerA = (controller: ControllerLayout, mappings: Mapping[]
             } else if (mapping.target.type === 'mouseClick') {
                 const buttonInput = new ButtonInput(mapping.id, mapping.target as MouseClickTarget);
                 controller.addInput(buttonInput);
+            }
+        }
+        else if (mapping.source === "analog") {
+            if (mapping.target.type === 'mouseMotion') {
+                const analogInput = new AnalogInput(mapping.id, mapping.target as MouseMotionTarget);
+                analogInput.setSensitivity(mapping.target.sensitivity);
+                await analogInput.setScreenDimensions();
+                controller.addInput(analogInput);
+            } else if (mapping.target.type === 'keyboard') {
+                const analogInput = new AnalogInput(mapping.id, mapping.target as KeyboardTarget);
+                controller.addInput(analogInput);
             }
         }
     }
@@ -115,9 +132,9 @@ app.on("ready", async () => {
         return mappingsLayoutA;
     });
 
-    ipcMain.on('set-controller-mappings',  (_event, data) => {
+    ipcMain.on('set-controller-mappings',  async (_event, data) => {
         mappingsLayoutA = data;
-        initializeControllerA(controllerLayout, data);
+        await initializeControllerA(controllerLayout, data);
     })
 
     if (server) {
@@ -147,10 +164,12 @@ app.on("ready", async () => {
                 }
             });
 
-            initializeControllerA(controllerLayout, mappingsLayoutA)
+            await initializeControllerA(controllerLayout, mappingsLayoutA)
 
-            socket.on('joystick-move', (data) => {
+            socket.on('joystick-move', async (data) => {
                 console.log('Joystick moved:', data);
+                const joystickCoordinates: Coordinates = {x: data.x, y:data.y};
+                await controllerLayout.inputs.get(data.joystickId)?.handleInput(joystickCoordinates)
             });
 
             socket.on('button', async (data: {button: string, pressed: boolean}) =>{
