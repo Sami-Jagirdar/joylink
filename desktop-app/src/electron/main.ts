@@ -172,6 +172,11 @@ app.on("ready", async () => {
                 await controllerLayout.inputs.get(data.joystickId)?.handleInput(joystickCoordinates)
             });
 
+            socket.on('joystick-stop', async (data) => {
+                console.log('Joystick stopped:', data);
+                await controllerLayout.inputs.get(data.joystickId)?.handleInput({x:0, y:0});
+            });
+
             socket.on('button', async (data: {button: string, pressed: boolean}) =>{
                 console.log(data.pressed);
                 await controllerLayout.inputs.get(data.button)?.handleInput(data.pressed)

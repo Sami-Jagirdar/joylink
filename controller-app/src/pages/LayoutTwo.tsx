@@ -160,11 +160,11 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
             {/* Right Joystick */}
             <div className="flex flex-col items-center">
                 <GameButton 
-                name="options" 
-                label="OPTIONS" 
+                name="select" 
+                label="SELECT" 
                 color="bg-[#4E4848]" 
                 textColor="text-white" 
-                onPress={(isPressed) => handleButtonEvent("options", isPressed)} 
+                onPress={(isPressed) => handleButtonEvent("select", isPressed)} 
                 className="h-[20px] w-[80px] rounded-full px-2 py-1 text-xs" 
                 />
                 <div className="mb-1 text-white text-xs translate-y-12 translate-x-10">Right</div>
