@@ -16,6 +16,8 @@ export class AnalogInput extends ControllerInput {
     private isMoving: boolean = false;
     private screenWidth: number = 1600;
     private screenHeight: number = 900;
+    private isXMoving: boolean = false;
+    private isYMoving: boolean = false;
     constructor(id: string, mappingTarget: MouseMotionTarget | AnalogKeyboardTarget) {
         super(id, mappingTarget)
     }
@@ -29,7 +31,7 @@ export class AnalogInput extends ControllerInput {
     }
 
     async handleInput(position: Coordinates): Promise<void> {
-        console.log(position);
+        // console.log(position);
 
         // Apply Deadzone
         if (Math.abs(position.x) <= this.deadzone) {
@@ -95,22 +97,44 @@ export class AnalogInput extends ControllerInput {
     private async handleKeyboardInput() {
         const {positiveX, positiveY, negativeX, negativeY} = this.mappingTarget as AnalogKeyboardTarget
         if (this.currentPosition.x === 0) {
-            await keyboard.releaseKey(...positiveX, ...negativeX);
+            await keyboard.releaseKey(...positiveX);
+            await keyboard.releaseKey(...negativeX);
+            this.isXMoving = false;
         }
         if (this.currentPosition.y === 0) {
-            await keyboard.releaseKey(...positiveY, ...negativeY);
+            await keyboard.releaseKey(...positiveY);
+            await keyboard.releaseKey(...negativeY);
+            this.isYMoving = false;
         }
 
-        if (this.currentPosition.x > this.deadzone) {
-            await keyboard.pressKey(...positiveX);
-        } else if (this.currentPosition.x < -this.deadzone) {
-            await keyboard.pressKey(...negativeX);
+        if (this.currentPosition.x === 0 && this.currentPosition.y === 0) {
+            return;
         }
 
-        if (this.currentPosition.y > this.deadzone) {
-            await keyboard.pressKey(...positiveY);
-        } else if (this.currentPosition.y < -this.deadzone) {
-            await keyboard.pressKey(...negativeY);
+        if (!this.isXMoving) {
+            if (this.currentPosition.x!==0) {
+                this.isXMoving = true;
+            }
+            if (this.currentPosition.x > 0) {
+                await keyboard.releaseKey(...positiveX);
+                await keyboard.pressKey(...positiveX);
+            } else if (this.currentPosition.x < 0) {
+                await keyboard.releaseKey(...negativeX);
+                await keyboard.pressKey(...negativeX);
+            }
+        }
+        
+        if (!this.isYMoving) {
+            if (this.currentPosition.y!==0) {
+                this.isYMoving = true;
+            }
+            if (this.currentPosition.y > 0) {
+                await keyboard.releaseKey(...positiveY);
+                await keyboard.pressKey(...positiveY);
+            } else if (this.currentPosition.y < 0) {
+                await keyboard.releaseKey(...negativeY);
+                await keyboard.pressKey(...negativeY);
+            }
         }
         
     }

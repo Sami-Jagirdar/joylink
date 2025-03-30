@@ -84,14 +84,14 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
   const handleJoystickMove = (joystickId: string, data: any) => {
     if (connected) {
       socket.emit("joystick-move", { joystickId, ...data });
-      console.log(`Joystick ${joystickId} moved:`, data);
+      // console.log(`Joystick ${joystickId} moved:`, data);
     }
   };
 
   const handleJoystickStop = (joystickId: string) => {
     if (connected) {
       socket.emit("joystick-stop", { joystickId });
-      console.log(`Joystick ${joystickId} stopped`);
+      // console.log(`Joystick ${joystickId} stopped`);
     }
   };
 
