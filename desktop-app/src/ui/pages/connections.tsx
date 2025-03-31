@@ -81,7 +81,7 @@ function Connections() {
         </div>
 
         <button
-          className="mt-4 px-8 py-4 bg-blue-600 text-white text-xl font-semibold rounded-lg shadow-lg hover:bg-red-700 transition-colors duration-300 transform hover:scale-105"
+          className="px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
           onClick={() => navigate('/customize')}
         >
           Back to customize

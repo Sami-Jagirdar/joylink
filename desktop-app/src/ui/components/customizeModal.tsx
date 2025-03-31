@@ -117,7 +117,7 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
           ) : (
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Keyboard Customization</h3>
-              <p>Select a key on the keyboard to customize its mapping.</p>
+              <p>Select upto 3 keys on the keyboard to bind to chosen button.</p>
               
               {/* Keyboard Component */}
               <div className="bg-neutral-800 rounded-md p-4">
@@ -134,12 +134,12 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
         <div className="flex justify-end space-x-2 p-4 border-t border-neutral-700">
           <button 
             onClick={onClose}
-            className="px-4 py-2 bg-neutral-700 text-white rounded-md hover:bg-neutral-600"
+            className="px-4 py-2 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 hover:cursor-pointer"
           >
             Cancel
           </button>
           <button 
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500"
+            className="px-4 py-2 bg-red-700 text-white rounded-md hover:cursor-pointer hover:bg-red-500"
             onClick={handleSave}
           >
             Save Changes

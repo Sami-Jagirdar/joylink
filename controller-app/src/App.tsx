@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
-import LayoutOne from "./pages/LayoutOne";
+// import LayoutOne from "./pages/LayoutOne";
+import LayoutTwo from "./pages/LayoutTwo";
 import { Joystick } from "react-joystick-component";
+
 
 function App() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
@@ -47,7 +49,7 @@ function App() {
   return (
     <>
       {useGamepad ? (
-        socket ? <LayoutOne socket={socket} /> : <p>Connecting...</p>
+        socket ? <LayoutTwo socket={socket} /> : <p>Connecting...</p>
       ) : (
         <Joystick size={100} baseColor="gray" stickColor="blue" move={handleJoystickMove} />
       )}
