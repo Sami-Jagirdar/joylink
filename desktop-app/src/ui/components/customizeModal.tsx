@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import KeyboardLayout from './keyboard'; // Import your keyboard component
 import { Mapping } from '../../types';
-import { KeyNum } from '../models';
-import {Key} from "@nut-tree-fork/nut-js";
+import { ButtonNum, KeyNum } from '../models';
+import {Key, Button} from "@nut-tree-fork/nut-js";
+import MouseLayout from './mouse';
 
 interface CustomizeModalProps {
   isOpen: boolean;
@@ -37,11 +38,18 @@ const TabOption = ({
 function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }: CustomizeModalProps) {
   const [selectedTab, setSelectedTab] = useState<'mouse' | 'keyboard'>('keyboard');
   const [tempKeybinding, setTempKeybinding] = useState<KeyNum[]>([])
+  const [tempMouseClick, setTempMouseClick] = useState<ButtonNum>(ButtonNum.LEFT);
 
   const handleKeybindingChange = (newKeys: KeyNum[]) => {
-    console.log(`new keys: ${JSON.stringify(newKeys)}`)
+    console.log(`new keys: ${JSON.stringify(newKeys)}`);
     setTempKeybinding(newKeys);
   };
+
+  const handleMouseClickChange = (newButton: ButtonNum) => {
+    console.log(`new keys: ${JSON.stringify(newButton)}`);
+    setTempMouseClick(newButton);
+  }
+
 
   const handleSave = () => {
     if (!selectedMapping) {return;}
@@ -49,7 +57,7 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
     if (selectedTab === 'keyboard') {
       const keybinding: Key[] = []
       tempKeybinding.forEach(key => {
-        keybinding.push(key.valueOf())
+        keybinding.push(key.valueOf());
       })
       
       onSave({
@@ -61,6 +69,14 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
       })
     } else {
       // TODO: Handle mouse click save
+      const button: Button = tempMouseClick?.valueOf();
+      onSave({
+        ...selectedMapping,
+        target: {
+          type: 'mouseClick',
+          mouseClick: button
+        }
+      })
     }
 
     onClose();
@@ -107,12 +123,16 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
               <p>Configure your mouse settings here.</p>
               
               {/* Display mappings for mouse */}
-              <div className="bg-neutral-800 p-4 rounded-md">
+              {/* <div className="bg-neutral-800 p-4 rounded-md">
                 <h4 className="font-medium mb-2">Current Mappings</h4>
                 <pre className="text-sm overflow-x-auto">
                   {JSON.stringify(mappings, null, 2)}
                 </pre>
-              </div>
+              </div> */}
+
+              <MouseLayout
+              currentMapping={selectedMapping}
+              onMappingChange={handleMouseClickChange} />
             </div>
           ) : (
             <div className="space-y-4">
