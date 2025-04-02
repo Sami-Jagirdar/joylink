@@ -190,6 +190,19 @@ app.on("ready", async () => {
                 await controllerLayout.inputs.get(data.button)?.handleInput(data.pressed)
             })
 
+            socket.on('voice-inference', async (data) => {
+                try {
+                  const { slots } = data;
+                  const command = slots?.commandString;
+              
+                  console.log('Voice inference received from client.');
+                  console.log('commandString:', command);
+              
+                } catch (err) {
+                  console.error('Error handling voice-inference:', err);
+                }
+              });
+
             ipcMain.on('manually-disconnect', (_event, data) => {
                 console.log(`Manually disconnecting: ${data}`);
         
