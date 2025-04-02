@@ -31,4 +31,4 @@ export default {
 
 ## Generate ssl certificate
 cd desktop-app/certs
-mkcert -key-file key.pem -cert-file cert.pem example.com *.example.com localhost
+mkcert -key-file key.pem -cert-file cert.pem <Private IP Address>
