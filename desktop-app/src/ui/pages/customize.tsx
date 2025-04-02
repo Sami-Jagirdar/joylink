@@ -49,10 +49,7 @@ function Customize() {
     const handleCustomize = (mapping: Mapping) => {
         console.log(`Customize button clicked for: ${mapping.id}`);
         setSelectedMapping(mapping)
-        //TODO: implement customization logic
-        if (mapping.source == 'button') {
-            handleButtonCustomize(mapping)
-        }
+        handleButtonCustomize(mapping)
     };
 
     const handleButtonCustomize = (mapping: Mapping) => {
@@ -61,11 +58,11 @@ function Customize() {
     }
 
     const handleButtonMappingSave = (updatedMapping: Mapping) => {
-        const updatedMappings = mappings.map(mapping => 
+        const updatedMappings = mappings.map(mapping =>
             mapping.id === updatedMapping.id ? updatedMapping : mapping
         )
-        setMappings(prevMappings => 
-            prevMappings.map(mapping => 
+        setMappings(prevMappings =>
+            prevMappings.map(mapping =>
               mapping.id === updatedMapping.id ? updatedMapping : mapping
             )
         );
@@ -77,7 +74,7 @@ function Customize() {
     // Render key binding pills
     const renderKeyBindings = (keybinding: typeof Key[keyof typeof Key][]) => {
         const pills = [];
-        
+
         // Create 5 pills (some may be empty)
         for (let i = 0; i < 3; i++) {
             const key = keybinding[i];
@@ -87,7 +84,7 @@ function Customize() {
                 </div>
             );
         }
-        
+
         return (
             <div className="flex space-x-5">
                 {pills}
@@ -109,7 +106,7 @@ function Customize() {
     const openModal = () => {
         setIsModalOpen(true);
       };
-    
+
       const closeModal = () => {
         setIsModalOpen(false);
       };
@@ -118,7 +115,7 @@ function Customize() {
         <div className="container min-w-screen mx-auto p-4">
             <h1 className=" text-xl font-bold text-white mb-4">Customize Controller Mappings</h1>
             {/* Have a png of the chosen layout at the top */}
-            
+
             <div className="space-y-3 p-4">
                 {mappings.map((mapping) => (
                     <div key={mapping.id} className=" w-auto mb-2 p-4 border-b-neutral-500 border-b rounded-xl shadow-md hover:shadow-lg transition-shadow">
@@ -128,23 +125,23 @@ function Customize() {
                             <div className="rounded-full flex items-center justify-center mr-3">
                                 <img src={buttonIcons[mapping.id]} alt={mapping.id} className="w-12 h-12" />
                             </div>
-                        
+
                             <div>
                                 <div className="font-medium">{mapping.source.charAt(0).toUpperCase() + mapping.source.slice(1)}</div>
                                 <div className="text-xs text-gray-300">ID: {mapping.id}</div>
                             </div>
                         </div>
-                    
+
                         {/* Mapping section */}
                         <div className="flex-grow mx-4">
                             <div className="mb-2 text-sm font-medium">
                                 <span className={`px-3 py-1 rounded-full ${
-                                    mapping.target.type === 'keyboard' ? 'border-blue-100 bg-neutral-800 text-blue-300' : 
-                                    mapping.target.type === 'mouseClick' ? 'border-green-100 bg-neutral-800 text-green-300' : 
+                                    mapping.target.type === 'keyboard' ? 'border-blue-100 bg-neutral-800 text-blue-300' :
+                                    mapping.target.type === 'mouseClick' ? 'border-green-100 bg-neutral-800 text-green-300' :
                                     'bg-neutral-800 text-purple-300'
                                 }`}>
-                                    {mapping.target.type === 'keyboard' ? 'Keyboard' : 
-                                    mapping.target.type === 'mouseClick' ? 'Mouse Click' : 
+                                    {mapping.target.type === 'keyboard' ? 'Keyboard' :
+                                    mapping.target.type === 'mouseClick' ? 'Mouse Click' :
                                     mapping.target.type === 'mouseMotion' ? 'Mouse Motion':
                                     'Analog Keyboard'}
                                 </span>
@@ -152,12 +149,12 @@ function Customize() {
                             {mapping.target.type === 'keyboard' && renderKeyBindings(mapping.target.keybinding)}
                             {mapping.target.type === 'mouseClick' && renderMouseClickBindings(mapping.target.mouseClick)}
                         </div>
-                    
+
                         {/* Customize button */}
                         <div>
                             <button
                             className="px-4 py-2 mt-6 rounded-md transition-colors hover:text-red-700 hover:cursor-pointer"
-                            
+
                             onClick={() => handleCustomize(mapping)}
                             >
                                 Customize
@@ -167,7 +164,7 @@ function Customize() {
                 </div>
                 ))}
             </div>
-            
+
             <button
                 className="px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
                 onClick={() => navigate('/connections')}
@@ -175,11 +172,11 @@ function Customize() {
                 Play
             </button>
 
-            <CustomizeModal 
-                isOpen={isModalOpen} 
-                onClose={closeModal} 
+            <CustomizeModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
                 mappings={mappings}
-                selectedMapping={selectedMapping} 
+                selectedMapping={selectedMapping}
                 onSave={handleButtonMappingSave}
             />
 

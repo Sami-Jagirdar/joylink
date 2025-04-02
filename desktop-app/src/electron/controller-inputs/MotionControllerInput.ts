@@ -1,6 +1,7 @@
 import { MouseMotionTarget, Accelerometer, AnalogKeyboardTarget } from "../../types.js";
 import { ControllerInput } from "./ControllerInput.js";
-import {mouse, Point} from "@nut-tree-fork/nut-js"
+import {keyboard, mouse, Point} from "@nut-tree-fork/nut-js"
+mouse.config.autoDelayMs = 0;
 mouse.config.autoDelayMs = 0;
 
 
@@ -11,6 +12,13 @@ export class MotionInput extends ControllerInput {
     private topOfPhoneIsOnLeft = true;
     private tiltFix = 60 * (Math.PI/180); //Set tilt angle where no movement is made to 60 degrees
     private mousePosition = new Point(0,0);
+    private deadAngleSteerKeyboard = 8 * (Math.PI/180); //Middle 10x2 degrees are dead
+    private deadAngleTiltKeyboard = 15 * (Math.PI/180);
+    private deadAngleSteerMouse = 2 * (Math.PI/180);
+    private deadAngleTiltMouse = 3 * (Math.PI/180);
+
+    private currentYDir = 0;
+    private currentXDir = 0;
 
     constructor(id: string, mappingTarget: MouseMotionTarget | AnalogKeyboardTarget) {
         super(id, mappingTarget)
@@ -52,24 +60,50 @@ export class MotionInput extends ControllerInput {
         }
 
         if (this.mappingTarget.type === "mouseMotion") {
-            // console.log(`Tilt Angle: ${tiltAngle}`)
-            // console.log(`Steer Angle: ${steerAngle}`)
-
-            this.mousePosition.x = this.clipInRange(this.mousePosition.x + steerAngle*this.sensitivity, 0, this.screenWidth)
-            this.mousePosition.y = this.clipInRange(this.mousePosition.y + (tiltAngle - this.tiltFix)*this.sensitivity, 0, this.screenHeight)
+            if ((steerAngle > this.deadAngleSteerMouse) || (steerAngle < -this.deadAngleSteerMouse)) {
+                this.mousePosition.x = this.clipInRange(this.mousePosition.x + steerAngle*this.sensitivity, 0, this.screenWidth)
+            }
+            if ((tiltAngle > this.tiltFix + this.deadAngleTiltMouse) || (tiltAngle < this.tiltFix - this.deadAngleTiltMouse)) {
+                this.mousePosition.y = this.clipInRange(this.mousePosition.y + (tiltAngle - this.tiltFix)*this.sensitivity, 0, this.screenHeight)
+            }
             mouse.setPosition(this.mousePosition);
+        } else if (this.mappingTarget.type === "analogKeyboard") {
+            const {positiveX, positiveY, negativeX, negativeY} = this.mappingTarget as AnalogKeyboardTarget
 
-            // Cant tell if this looks smoother or not
-            // const diff_x = steerAngle*this.sensitivity
-            // const diff_y = (tiltAngle - this.tiltFix)*this.sensitivity
-
-            // const intermediate_point = new Point(this.mousePosition.x + diff_x/2, this.mousePosition.y + diff_y/2)
-            // mouse.setPosition(intermediate_point);
-
-            // this.mousePosition.x = this.clipInRange(this.mousePosition.x + diff_x, 0, this.screenWidth)
-            // this.mousePosition.y = this.clipInRange(this.mousePosition.y + diff_y, 0, this.screenHeight)
-            // mouse.setPosition(this.mousePosition)
-
+            if (tiltAngle > this.tiltFix + this.deadAngleTiltKeyboard) {
+                if (this.currentYDir <= 0) {
+                    this.currentYDir = 1
+                    await keyboard.releaseKey(...positiveY)
+                    await keyboard.pressKey(...negativeY);
+                }
+            } else if (tiltAngle < this.tiltFix - this.deadAngleTiltKeyboard) {
+                if (this.currentYDir >= 0) {
+                    this.currentYDir = -1
+                    await keyboard.releaseKey(...negativeY)
+                    await keyboard.pressKey(...positiveY);
+                }
+            } else {
+                this.currentYDir = 0
+                await keyboard.releaseKey(...negativeY);
+                await keyboard.releaseKey(...positiveY);
+            }
+            if (steerAngle > this.deadAngleSteerKeyboard) {
+                if (this.currentXDir <= 0) {
+                    this.currentXDir = 1
+                    await keyboard.releaseKey(...negativeX)
+                    await keyboard.pressKey(...positiveX);
+                }
+            } else if (steerAngle < -this.deadAngleSteerKeyboard) {
+                if (this.currentXDir >= 0) {
+                    this.currentXDir = -1
+                    await keyboard.releaseKey(...positiveX)
+                    await keyboard.pressKey(...negativeX);
+                }
+            } else {
+                this.currentXDir = 0
+                await keyboard.releaseKey(...negativeX);
+                await keyboard.releaseKey(...positiveX);
+            }
         }
 
     }

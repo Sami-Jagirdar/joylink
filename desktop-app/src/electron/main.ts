@@ -116,6 +116,9 @@ const initializeControllerA = async (controller: ControllerLayout, mappings: Map
                 motionInput.setSensitivity(mapping.target.sensitivity);
                 await motionInput.setScreenDimensions();
                 controller.addInput(motionInput);
+            } else if (mapping.target.type === 'analogKeyboard') {
+                const motionInput = new MotionInput(mapping.id, mapping.target as AnalogKeyboardTarget)
+                controller.addInput(motionInput)
             }
         }
     }
