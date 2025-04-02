@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
-// import LayoutOne from "./pages/LayoutOne";
-import LayoutTwo from "./pages/LayoutTwo";
+import LayoutOne from "./pages/LayoutOne";
+//mport LayoutTwo from "./pages/LayoutTwo";
 import { Joystick } from "react-joystick-component";
 
 
@@ -34,7 +34,7 @@ function App() {
 
     // Prevent pinch-to-zoom on touch devices
     // document.addEventListener('touchmove', function(event) {
-    //   if (event.scale !== 1) { 
+    //   if (event.scale !== 1) {
     //     event.preventDefault();
     //   }8
     // }, { passive: false });
@@ -49,7 +49,7 @@ function App() {
   return (
     <>
       {useGamepad ? (
-        socket ? <LayoutTwo socket={socket} /> : <p>Connecting...</p>
+        socket ? <LayoutOne socket={socket} /> : <p>Connecting...</p>
       ) : (
         <Joystick size={100} baseColor="gray" stickColor="blue" move={handleJoystickMove} />
       )}
