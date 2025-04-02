@@ -201,7 +201,12 @@ app.on("ready", async () => {
                 } catch (err) {
                   console.error('Error handling voice-inference:', err);
                 }
-              });
+            });
+
+            socket.on('general-message', async (data) => {
+                console.log('message:', data);
+            });
+            
 
             ipcMain.on('manually-disconnect', (_event, data) => {
                 console.log(`Manually disconnecting: ${data}`);

@@ -8,24 +8,27 @@ interface VoiceCaptureProps {
 const VoiceCapture: React.FC<VoiceCaptureProps> = ({ socket }) => {
   const {
     inference,
-    // contextInfo,
     isLoaded,
     isListening,
     error,
     init,
-    // process,
     release,
   } = useRhino();
+
+  const rhinoContext = { publicPath: "/Controller-Commands_en_wasm_v3_0_0.b64" }
+  const rhinoModel = { publicPath: "/rhino_params.b64" }
 
   useEffect(() => {
     // On component mount, call init(...) with your Picovoice Access Key + context + model
     const startRhino = async () => {
       try {
         await init(
-          "", 
-          { publicPath: "/Controller-Commands_en_wasm_v3_0_0.b64" },
-          { publicPath: "/rhino_params.b64" }
+          "JVIBCZOrBgjG4Fujv5nNpA47XKLbQQqhylhQg33Rj324NK4AXG1S9w==", //Access key
+          rhinoContext,
+          rhinoModel
         );
+
+        socket.emit("general-message", "Hello");
       } catch (err) {
         console.error("Rhino init error:", err);
       }
@@ -44,7 +47,6 @@ const VoiceCapture: React.FC<VoiceCaptureProps> = ({ socket }) => {
     if (inference) {
       console.log("Rhino inference:", inference);
 
-      // // For example, send the entire inference object
       // socket.emit("voice-inference", inference);
 
       // Only want the recognized intent or "word"

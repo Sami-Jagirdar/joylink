@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import GameButton from "../components/GameButton";
 import { DPad } from "../components/DPad";
+import VoiceCapture from "../components/VoiceCapture";
 
 interface LayoutOneProps {
   socket: SocketIOClient.Socket;
@@ -134,6 +135,8 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
           </div>
         </div>
       </div>
+
+      <VoiceCapture socket={socket} />
     </div>
   );
 }
