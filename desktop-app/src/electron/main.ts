@@ -206,6 +206,15 @@ app.on("ready", async () => {
                 console.log('message:', data);
             });
 
+            // Add voice-inference listener to log commandString
+            socket.on('voice-inference', (inferenceData) => {
+                if (inferenceData && inferenceData.slots && inferenceData.slots.commandString) {
+                    console.log("Voice inference commandString:", inferenceData.slots.commandString);
+                } else {
+                    console.log("Received voice inference without a valid commandString:", inferenceData);
+                }
+            });
+
             socket.on('button', async (data: {button: string, pressed: boolean}) =>{
                 console.log(data.pressed);
                 await controllerLayout.inputs.get(data.button)?.handleInput(data.pressed)
@@ -214,7 +223,6 @@ app.on("ready", async () => {
             socket.on('device-motion', async (data: Accelerometer) => {
                 //console.log(data);
                 await controllerLayout.inputs.get('accelerometer')?.handleInput(data);
-
             })
 
             ipcMain.on('manually-disconnect', (_event, data) => {
