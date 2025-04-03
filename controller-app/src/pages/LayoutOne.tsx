@@ -31,7 +31,6 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
   const [isLandscape, setIsLandscape] = useState(false);
   const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
   const [maxConnections, setMaxConnections] = useState(false);
-  const [acceleration, setAcceleration] = useState<DeviceMotionEventAcceleration|null>({ x: 0, y: 0, z: 0 });
 
   const handleMotion = (event: DeviceMotionEvent) => {
     const now = Date.now();
@@ -41,7 +40,6 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
         y: event.accelerationIncludingGravity?.y,
         z: event.accelerationIncludingGravity?.z,
       })
-      setAcceleration(event.accelerationIncludingGravity)
       lastProcessedTime = now
     }
 
@@ -129,12 +127,6 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
           }
         </span>
       </div>
-      <div id="orientationData">
-        <p className="bg-[#A20202]">x: {acceleration?.x}</p>
-        <p className="bg-[#A20202]">y: {acceleration?.y}</p>
-        <p className="bg-[#A20202]">z: {acceleration?.z}</p>
-      </div>
-
       <div className="h-full w-full flex flex-row items-center justify-between p-4">
         {/* Left side - D-Pad */}
         <div className="flex-1 flex justify-center items-center">
