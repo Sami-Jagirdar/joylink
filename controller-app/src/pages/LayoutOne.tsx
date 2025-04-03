@@ -8,6 +8,9 @@ interface LayoutOneProps {
   socket: SocketIOClient.Socket;
 }
 
+let lastProcessedTime = 0;
+const THROTTLE_INTERVAL = 16;//ms, This cannot be any lower since that will lag the PC
+
 function getDeviceType(socket: SocketIOClient.Socket) {
   const ua = navigator.userAgent;
   let deviceType = "";
@@ -28,6 +31,22 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
   const [isLandscape, setIsLandscape] = useState(false);
   const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
   const [maxConnections, setMaxConnections] = useState(false);
+
+  const handleMotion = (event: DeviceMotionEvent) => {
+    const now = Date.now();
+    if (now - lastProcessedTime >= THROTTLE_INTERVAL) {
+      socket.emit('device-motion', {
+        x: event.accelerationIncludingGravity?.x,
+        y: event.accelerationIncludingGravity?.y,
+        z: event.accelerationIncludingGravity?.z,
+      })
+      lastProcessedTime = now
+    }
+
+  }
+  if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', handleMotion);
+  }
 
   useEffect(() => {
     const handleConnect = () => setConnected(true);
@@ -50,10 +69,10 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
     const checkOrientation = () => {
       setIsLandscape(window.innerWidth > window.innerHeight);
     };
-    
+
     // Initial check
     checkOrientation();
-    
+
     // Listen for orientation changes
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
@@ -68,6 +87,11 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
 
   const handleButtonEvent = (buttonId: string, isPressed: boolean) => {
     if (connected) {
+
+      if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+        (DeviceMotionEvent as any).requestPermission()
+      }
+
       socket.emit("button", { button: buttonId, pressed: isPressed });
       console.log(`Button ${buttonId} ${isPressed ? "pressed" : "released"}`);
     }
@@ -103,7 +127,6 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
           }
         </span>
       </div>
-
       <div className="h-full w-full flex flex-row items-center justify-between p-4">
         {/* Left side - D-Pad */}
         <div className="flex-1 flex justify-center items-center">

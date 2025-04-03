@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import KeyboardLayout from './keyboard'; // Import your keyboard component
 import { Mapping } from '../../types';
 import { ButtonNum, KeyNum } from '../models';
@@ -14,19 +14,19 @@ interface CustomizeModalProps {
 }
 
 // TabOption component for the modal tabs
-const TabOption = ({ 
-  label, 
-  isActive, 
-  onClick 
-}: { 
-  label: string; 
-  isActive: boolean; 
+const TabOption = ({
+  label,
+  isActive,
+  onClick
+}: {
+  label: string;
+  isActive: boolean;
   onClick: () => void;
 }) => (
   <button
     className={`px-4 py-2 font-medium rounded-t-md ${
-      isActive 
-        ? 'bg-neutral-100 text-neutral-900 border-b-2 border-red-500' 
+      isActive
+        ? 'bg-neutral-100 text-neutral-900 border-b-2 border-red-500'
         : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
     }`}
     onClick={onClick}
@@ -35,16 +35,52 @@ const TabOption = ({
   </button>
 );
 
+
+type multiKey = {
+  'up': KeyNum[];
+  'down': KeyNum[];
+  'left': KeyNum[];
+  'right': KeyNum[];
+}
+
 function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }: CustomizeModalProps) {
   const [selectedTab, setSelectedTab] = useState<'mouse' | 'keyboard'>('keyboard');
+  const [objectType, setObjectType] = useState<'single' | 'multi'>();
   const [tempKeybinding, setTempKeybinding] = useState<KeyNum[]>([])
   const [tempMouseClick, setTempMouseClick] = useState<ButtonNum>(ButtonNum.LEFT);
+  const [tempMultiKeybinding, setTempMultiKeybinding] = useState<multiKey>({
+    up: [],
+    down: [],
+    left: [],
+    right: [],
+  });
+  const [currentDirection, setCurrentDirection] = useState<'up'| 'down'| 'left'| 'right'>('up')
 
+  useEffect(() => {
+    setObjectType(selectedMapping.source === 'button' ? 'single' : 'multi')
+  })
   const handleKeybindingChange = (newKeys: KeyNum[]) => {
-    console.log(`new keys: ${JSON.stringify(newKeys)}`);
-    setTempKeybinding(newKeys);
+    if (objectType === 'single') {
+      console.log(`new keys: ${JSON.stringify(newKeys)}`);
+      setTempKeybinding(newKeys);
+    } else if (objectType === 'multi') {
+      console.log(`new keys: ${JSON.stringify(newKeys)}`)
+      const multiBindings = tempMultiKeybinding
+      multiBindings[currentDirection] = newKeys
+      setTempMultiKeybinding(multiBindings)
+    }
   };
-
+  const nextDirection = () => {
+    if (currentDirection == 'up') {
+      setCurrentDirection('down')
+    } else if (currentDirection == 'down') {
+      setCurrentDirection('left')
+    } else if (currentDirection == 'left') {
+      setCurrentDirection('right')
+    } else if (currentDirection == 'right') {
+      setCurrentDirection('up')
+    }
+  }
   const handleMouseClickChange = (newButton: ButtonNum) => {
     console.log(`new keys: ${JSON.stringify(newButton)}`);
     setTempMouseClick(newButton);
@@ -53,20 +89,40 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
 
   const handleSave = () => {
     if (!selectedMapping) {return;}
+    console.log(123)
+    console.log(tempMultiKeybinding)
 
     if (selectedTab === 'keyboard') {
-      const keybinding: Key[] = []
-      tempKeybinding.forEach(key => {
-        keybinding.push(key.valueOf());
-      })
-      
-      onSave({
-        ...selectedMapping,
-        target: {
-          type: 'keyboard',
-          keybinding: keybinding
+      if (objectType === 'single') {
+        const keybinding: Key[] = []
+        tempKeybinding.forEach(key => {
+          keybinding.push(key.valueOf())
+        })
+        onSave({
+          ...selectedMapping,
+          target: {
+            type: 'keyboard',
+            keybinding: keybinding
+          }
+        })
+      } else if (objectType === 'multi') {
+
+        const mapKeyNumToKey = (keyNum: KeyNum) => {
+          return keyNum.valueOf()
         }
-      })
+        setCurrentDirection('up')
+        onSave({
+          ...selectedMapping,
+          target: {
+            type: 'analogKeyboard',
+            positiveX: tempMultiKeybinding.right.map(mapKeyNumToKey),
+            positiveY: tempMultiKeybinding.up.map(mapKeyNumToKey),
+            negativeX: tempMultiKeybinding.left.map(mapKeyNumToKey),
+            negativeY: tempMultiKeybinding.down.map(mapKeyNumToKey),
+          }
+
+        })
+      }
     } else {
       // TODO: Handle mouse click save
       const button: Button = tempMouseClick?.valueOf();
@@ -91,7 +147,7 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
         {/* Modal Header */}
         <div className="flex justify-between items-center p-4 border-b border-neutral-700">
           <h2 className="text-xl font-semibold">Customize Controls</h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-neutral-700 text-neutral-400 hover:text-white"
           >
@@ -103,15 +159,15 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
 
         {/* Tab Navigation */}
         <div className="flex border-b border-neutral-700">
-          <TabOption 
-            label="Keyboard" 
-            isActive={selectedTab === 'keyboard'} 
-            onClick={() => setSelectedTab('keyboard')} 
+          <TabOption
+            label="Keyboard"
+            isActive={selectedTab === 'keyboard'}
+            onClick={() => setSelectedTab('keyboard')}
           />
-          <TabOption 
-            label="Mouse" 
-            isActive={selectedTab === 'mouse'} 
-            onClick={() => setSelectedTab('mouse')} 
+          <TabOption
+            label="Mouse"
+            isActive={selectedTab === 'mouse'}
+            onClick={() => setSelectedTab('mouse')}
           />
         </div>
 
@@ -121,7 +177,7 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Mouse Customization</h3>
               <p>Configure your mouse settings here.</p>
-              
+
               {/* Display mappings for mouse */}
               {/* <div className="bg-neutral-800 p-4 rounded-md">
                 <h4 className="font-medium mb-2">Current Mappings</h4>
@@ -137,13 +193,13 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
           ) : (
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Keyboard Customization</h3>
-              <p>Select upto 3 keys on the keyboard to bind to chosen button.</p>
-              
+              {objectType==='single' && (<p>Select upto 3 keys on the keyboard to bind to chosen button.</p>)}
+              {objectType==='multi' && (<p>Select upto 3 keys on the keyboard to bind to the {currentDirection} direction. </p>)}
               {/* Keyboard Component */}
               <div className="bg-neutral-800 rounded-md p-4">
-                <KeyboardLayout 
-                currentMapping={selectedMapping} 
-                allMappings={mappings} 
+                <KeyboardLayout
+                currentMapping={selectedMapping}
+                allMappings={mappings}
                 onMappingChange={handleKeybindingChange}/>
               </div>
             </div>
@@ -152,18 +208,28 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
 
         {/* Modal Footer */}
         <div className="flex justify-end space-x-2 p-4 border-t border-neutral-700">
-          <button 
+          <button
             onClick={onClose}
             className="px-4 py-2 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 hover:cursor-pointer"
           >
             Cancel
           </button>
-          <button 
-            className="px-4 py-2 bg-red-700 text-white rounded-md hover:cursor-pointer hover:bg-red-500"
-            onClick={handleSave}
-          >
-            Save Changes
-          </button>
+          {objectType === 'multi' && currentDirection !== 'right' ? (
+              <button
+                className="px-4 py-2 bg-blue-700 text-white rounded-md hover:cursor-pointer hover:bg-red-500"
+                onClick={nextDirection}
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                className="px-4 py-2 bg-red-700 text-white rounded-md hover:cursor-pointer hover:bg-red-500"
+                onClick={handleSave}
+              >
+                Save Changes
+              </button>
+            )
+          }
         </div>
       </div>
     </div>

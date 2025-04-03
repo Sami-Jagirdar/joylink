@@ -4,12 +4,13 @@ import path from 'path';
 import { getPreloadPath } from './pathResolver.js';
 import { serveControllerApp } from './server.js';
 import { ControllerLayout } from './controllers/ControllerLayout.js';
-import { KeyboardTarget, Mapping, MouseClickTarget, MouseMotionTarget, Coordinates, AnalogKeyboardTarget } from '../types.js';
+import { KeyboardTarget, Mapping, MouseClickTarget, MouseMotionTarget, Coordinates, AnalogKeyboardTarget, Accelerometer } from '../types.js';
 import {Button, Key} from '@nut-tree-fork/nut-js'
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
 import { ipcMain } from 'electron';
 import { ipcHandle, isDev } from './util.js';
 import { AnalogInput } from './controller-inputs/AnaogInput.js';
+import { MotionInput } from './controller-inputs/MotionControllerInput.js';
 
 // This should ideally be a constant and we should wrap it in a class or object and mutate it via those objects for data integrity
 let mappingsLayoutA: Mapping[] = [
@@ -22,7 +23,7 @@ let mappingsLayoutA: Mapping[] = [
         id: 'b',
         source: 'button',
         target: {type: 'keyboard', keybinding: [Key.Num5]},
-    }, 
+    },
     {
         id: 'x',
         source: 'button',
@@ -71,11 +72,16 @@ let mappingsLayoutA: Mapping[] = [
     {
         id: 'left-analog',
         source: 'analog',
-        target: {type: 'analogKeyboard', 
-            positiveX: [Key.D], positiveY: [Key.W], 
+        target: {type: 'analogKeyboard',
+            positiveX: [Key.D], positiveY: [Key.W],
             negativeX: [Key.A], negativeY: [Key.S]
         }
-    }
+    },
+    {
+        id: 'accelerometer',
+        source: 'motion',
+        target: {type: 'mouseMotion', sensitivity: 25}
+    },
 ]
 
 const maxConnections = 1;
@@ -104,6 +110,17 @@ const initializeControllerA = async (controller: ControllerLayout, mappings: Map
                 controller.addInput(analogInput);
             }
         }
+        else if (mapping.source === "motion") {
+            if (mapping.target.type === 'mouseMotion') {
+                const motionInput = new MotionInput(mapping.id, mapping.target as MouseMotionTarget);
+                motionInput.setSensitivity(mapping.target.sensitivity);
+                await motionInput.setScreenDimensions();
+                controller.addInput(motionInput);
+            } else if (mapping.target.type === 'analogKeyboard') {
+                const motionInput = new MotionInput(mapping.id, mapping.target as AnalogKeyboardTarget)
+                controller.addInput(motionInput)
+            }
+        }
     }
 }
 
@@ -113,7 +130,7 @@ app.on("ready", async () => {
             preload: getPreloadPath(),
         }
     });
-      
+
     if (isDev()) {
         const port = process.env.LOCAL_PORT;
         if (port) {
@@ -159,7 +176,7 @@ app.on("ready", async () => {
 
             // Request client to send device info
             socket.emit('request-device-info');
-            
+
             let clientDeviceName: string | null = null;
             socket.on('device-info', async (data: { deviceName: string }) => {
                 console.log("Device Type: ", data.deviceName);
@@ -190,21 +207,27 @@ app.on("ready", async () => {
                 await controllerLayout.inputs.get(data.button)?.handleInput(data.pressed)
             })
 
+            socket.on('device-motion', async (data: Accelerometer) => {
+                //console.log(data);
+                await controllerLayout.inputs.get('accelerometer')?.handleInput(data);
+
+            })
+
             ipcMain.on('manually-disconnect', (_event, data) => {
                 console.log(`Manually disconnecting: ${data}`);
-        
+
                 // Find and remove the client from connectedClients list
                 const index = connectedClients.indexOf(data);
                 if (index !== -1) {
                     connectedClients.splice(index, 1);
                 }
-        
+
                 // Send updated list to UI
                 const mainWindow = BrowserWindow.getAllWindows()[0];
                 if (mainWindow) {
                     mainWindow.webContents.send('setClientDeviceInformation', connectedClients);
                 }
-        
+
                 // Disconnect the socket
                 if (clientDeviceName === data) {
                     console.log(`Disconnecting socket for: ${data}`);

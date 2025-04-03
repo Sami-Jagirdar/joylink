@@ -19,5 +19,9 @@ export function getAssetPath() {
 }
 
 export function getControllerPath() {
-  return path.join(app.getAppPath(), '../controller-app/dist-controller')
+  return path.join(app.getAppPath(), '../controller-app/dist-controller');
+}
+
+export function getCertPath() {
+  return path.join(app.getAppPath(), '/certs');
 }
