@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import GameButton from "../components/GameButton";
 import { DPad } from "../components/DPad";
-import { Joystick } from "react-joystick-component";
+import { Joystick } from "react-joystick-component";  
+// import VoiceCapture from "../components/VoiceCapture";
 
 interface LayoutTwoProps {
   socket: SocketIOClient.Socket;
@@ -236,6 +237,8 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
           </div>
         </div>
       </div>
+
+      {/* <VoiceCapture socket={socket} /> */}
     </div>
   );
 }

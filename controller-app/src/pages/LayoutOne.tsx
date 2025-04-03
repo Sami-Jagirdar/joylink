@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import GameButton from "../components/GameButton";
 import { DPad } from "../components/DPad";
+import VoiceCapture from "../components/VoiceCapture";
 
 interface LayoutOneProps {
   socket: SocketIOClient.Socket;
 }
 
-let lastProcessedTime = 0;
-const THROTTLE_INTERVAL = 16;//ms, This cannot be any lower since that will lag the PC
+// let lastProcessedTime = 0;
+// const THROTTLE_INTERVAL = 16;//ms, This cannot be any lower since that will lag the PC
 
 function getDeviceType(socket: SocketIOClient.Socket) {
   const ua = navigator.userAgent;
@@ -31,24 +32,24 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
   const [isLandscape, setIsLandscape] = useState(false);
   const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
   const [maxConnections, setMaxConnections] = useState(false);
-  const [acceleration, setAcceleration] = useState<DeviceMotionEventAcceleration|null>({ x: 0, y: 0, z: 0 });
+  // const [acceleration, setAcceleration] = useState<DeviceMotionEventAcceleration|null>({ x: 0, y: 0, z: 0 });
 
-  const handleMotion = (event: DeviceMotionEvent) => {
-    const now = Date.now();
-    if (now - lastProcessedTime >= THROTTLE_INTERVAL) {
-      socket.emit('device-motion', {
-        x: event.accelerationIncludingGravity?.x,
-        y: event.accelerationIncludingGravity?.y,
-        z: event.accelerationIncludingGravity?.z,
-      })
-      setAcceleration(event.accelerationIncludingGravity)
-      lastProcessedTime = now
-    }
+  // const handleMotion = (event: DeviceMotionEvent) => {
+  //   const now = Date.now();
+  //   if (now - lastProcessedTime >= THROTTLE_INTERVAL) {
+  //     socket.emit('device-motion', {
+  //       x: event.accelerationIncludingGravity?.x,
+  //       y: event.accelerationIncludingGravity?.y,
+  //       z: event.accelerationIncludingGravity?.z,
+  //     })
+  //     setAcceleration(event.accelerationIncludingGravity)
+  //     lastProcessedTime = now
+  //   }
 
-  }
-  if (window.DeviceMotionEvent) {
-    window.addEventListener('devicemotion', handleMotion);
-  }
+  // }
+  // if (window.DeviceMotionEvent) {
+  //   window.addEventListener('devicemotion', handleMotion);
+  // }
 
   useEffect(() => {
     const handleConnect = () => setConnected(true);
@@ -129,11 +130,11 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
           }
         </span>
       </div>
-      <div id="orientationData">
+      {/* <div id="orientationData">
         <p className="bg-[#A20202]">x: {acceleration?.x}</p>
         <p className="bg-[#A20202]">y: {acceleration?.y}</p>
         <p className="bg-[#A20202]">z: {acceleration?.z}</p>
-      </div>
+      </div> */}
 
       <div className="h-full w-full flex flex-row items-center justify-between p-4">
         {/* Left side - D-Pad */}
@@ -165,6 +166,8 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
           </div>
         </div>
       </div>
+
+      <VoiceCapture socket={socket} />
     </div>
   );
 }
