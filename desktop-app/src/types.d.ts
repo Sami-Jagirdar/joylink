@@ -39,6 +39,11 @@ type Coordinates = {
     y: number;
 }
 
+type Accelerometer = {
+    x: number;
+    y: number;
+    z: number;
+}
 
 // To make IPC typesafe
 type EventPayloadMapping = {

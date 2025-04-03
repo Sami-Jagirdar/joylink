@@ -1,6 +1,6 @@
 import { MouseMotionTarget, Coordinates, AnalogKeyboardTarget } from "../../types.js";
 import { ControllerInput } from "./ControllerInput.js";
-import {keyboard, mouse, Point, screen} from "@nut-tree-fork/nut-js"
+import {keyboard, mouse, Point} from "@nut-tree-fork/nut-js"
 keyboard.config.autoDelayMs = 0;
 mouse.config.autoDelayMs = 0;
 
@@ -8,27 +8,18 @@ mouse.config.autoDelayMs = 0;
 // Point corresponds to mouse x,y
 
 export class AnalogInput extends ControllerInput {
-    private sensitivity = 15;
     private deadzone = 0.15;
     private lastPosition: Point = {x:0,y:0};
     private currentPosition: Coordinates = {x:0, y:0};
     private moveInterval: NodeJS.Timeout | null = null;
     private isMoving: boolean = false;
-    private screenWidth: number = 1600;
-    private screenHeight: number = 900;
+
     private isXMoving: boolean = false;
     private isYMoving: boolean = false;
     constructor(id: string, mappingTarget: MouseMotionTarget | AnalogKeyboardTarget) {
         super(id, mappingTarget)
     }
 
-    async setScreenDimensions() {
-        this.screenWidth = await screen.width();
-        this.screenHeight = await screen.height();
-
-        console.log(this.screenHeight);
-        console.log(this.screenWidth);
-    }
 
     async handleInput(position: Coordinates): Promise<void> {
         // console.log(position);
@@ -42,7 +33,7 @@ export class AnalogInput extends ControllerInput {
         }
 
         this.currentPosition = position;
-        
+
         // Need the stopMotion to stop the interval
         if (this.mappingTarget.type === "mouseMotion") {
             if (!this.isMoving) {
@@ -53,7 +44,7 @@ export class AnalogInput extends ControllerInput {
         } else if (this.mappingTarget.type === "analogKeyboard") {
             this.handleKeyboardInput();
         }
-        
+
     }
 
     async startMotion(): Promise<void> {
@@ -63,12 +54,12 @@ export class AnalogInput extends ControllerInput {
         }
 
         this.isMoving = true;
-        
+
         // Set up interval for continuous movement
         this.moveInterval = setInterval(async () => {
             await this.handleMouseMotionInput();
         }, 16); // ~60fps updates
-    } 
+    }
 
     stopMotion(): void {
         this.isMoving = false
@@ -123,7 +114,7 @@ export class AnalogInput extends ControllerInput {
                 await keyboard.pressKey(...negativeX);
             }
         }
-        
+
         if (!this.isYMoving) {
             if (this.currentPosition.y!==0) {
                 this.isYMoving = true;
@@ -136,13 +127,7 @@ export class AnalogInput extends ControllerInput {
                 await keyboard.pressKey(...negativeY);
             }
         }
-        
-    }
 
-    setSensitivity(sensitivity: number): void {
-        if (sensitivity > 0) {
-            this.sensitivity = sensitivity;
-        }
     }
 
 }
