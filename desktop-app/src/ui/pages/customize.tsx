@@ -45,7 +45,6 @@ function Customize() {
         fetchMappings();
     }, []);
 
-    //handler for the customize button
     const handleCustomize = (mapping: Mapping) => {
         console.log(`Customize button clicked for: ${mapping.id}`);
         setSelectedMapping(mapping)
@@ -57,7 +56,7 @@ function Customize() {
         openModal()
     }
 
-    const handleButtonMappingSave = (updatedMapping: Mapping) => {
+    const handleMappingSave = (updatedMapping: Mapping) => {
         const updatedMappings = mappings.map(mapping =>
             mapping.id === updatedMapping.id ? updatedMapping : mapping
         )
@@ -177,7 +176,7 @@ function Customize() {
                 onClose={closeModal}
                 mappings={mappings}
                 selectedMapping={selectedMapping}
-                onSave={handleButtonMappingSave}
+                onSave={handleMappingSave}
             />
 
         </div>
