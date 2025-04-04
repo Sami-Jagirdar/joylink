@@ -177,6 +177,9 @@ app.on("ready", async () => {
             // Request client to send device info
             socket.emit('request-device-info');
 
+            // send layout to client
+            socket.emit('layout', 'layout-two');
+
             let clientDeviceName: string | null = null;
             socket.on('device-info', async (data: { deviceName: string }) => {
                 console.log("Device Type: ", data.deviceName);

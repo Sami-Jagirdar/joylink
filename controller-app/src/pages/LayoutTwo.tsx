@@ -7,6 +7,9 @@ import { Joystick } from "react-joystick-component";
 
 interface LayoutTwoProps {
   socket: SocketIOClient.Socket;
+  connected: boolean;
+  maxConnections: boolean;
+  manuallyDisconnected: boolean;
 }
 
 function getDeviceType(socket: SocketIOClient.Socket) {
@@ -24,29 +27,10 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
-export default function LayoutTwo({ socket }: LayoutTwoProps) {
-  const [connected, setConnected] = useState(false);
+export default function LayoutTwo({ socket, connected, maxConnections, manuallyDisconnected }: LayoutTwoProps) {
   const [isLandscape, setIsLandscape] = useState(false);
-  const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
-  const [maxConnections, setMaxConnections] = useState(false);
 
   useEffect(() => {
-    const handleConnect = () => setConnected(true);
-    const handleDisconnect = () => setConnected(false);
-    const handleManualDisconnect = () => setManuallyDisconnected(true);
-    const handleMaxConnections = () => setMaxConnections(true);
-
-    const sendDeviceInfo = () => {
-      const deviceName = getDeviceType(socket);
-      socket.emit('device-info', { deviceName: deviceName });
-    };
-
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    socket.on("request-device-info", sendDeviceInfo);
-    socket.on("max-connections-reached", handleMaxConnections)
-    socket.on("manually-disconnect", handleManualDisconnect)
-
     // Check and update orientation
     const checkOrientation = () => {
       setIsLandscape(window.innerWidth > window.innerHeight);
@@ -54,21 +38,15 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
     
     // Initial check
     checkOrientation();
-    
     // Listen for orientation changes
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
 
     return () => {
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
-      socket.off("request-device-info", sendDeviceInfo);
-      socket.off("max-connections-reached", handleMaxConnections);
-      socket.off("manually-disconnect", handleManualDisconnect);
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
-    };
-  }, [socket]);
+    }
+  }, [])
 
   const handleButtonEvent = (buttonId: string, isPressed: boolean) => {
     if (connected) {

@@ -1,13 +1,29 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import LayoutOne from "./pages/LayoutOne";
-//mport LayoutTwo from "./pages/LayoutTwo";
-import { Joystick } from "react-joystick-component";
+import LayoutTwo from "./pages/LayoutTwo";
 
+function getDeviceType(socket: SocketIOClient.Socket) {
+  const ua = navigator.userAgent;
+  let deviceType = "";
+
+  if (/android/i.test(ua)) {
+    deviceType = "Android Device";
+  } else if (/iPhone|iPad|iPod/i.test(ua)) {
+    deviceType = "iOS Device";
+  } else {
+    deviceType = "Unknown Device Type";
+  }
+
+  return `${deviceType} | Socket ID - ${socket.id}`;
+}
 
 function App() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
-  const [useGamepad] = useState(true); // Toggle between joystick and gamepad
+  const [layout, setLayout] = useState(''); // Toggle between joystick and gamepad
+  const [connected, setConnected] = useState(false);
+  const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
+  const [maxConnections, setMaxConnections] = useState(false);
 
   useEffect(() => {
     const url = window.location.href
@@ -18,6 +34,38 @@ function App() {
       socketInstance.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    if (socket) {
+
+      const handleConnect = () => setConnected(true);
+      const handleDisconnect = () => setConnected(false);
+      const handleManualDisconnect = () => setManuallyDisconnected(true);
+      const handleMaxConnections = () => setMaxConnections(true);
+
+      const sendDeviceInfo = () => {
+        const deviceName = getDeviceType(socket);
+        socket.emit('device-info', { deviceName: deviceName });
+      };
+
+      socket.on("connect", handleConnect);
+      socket.on("disconnect", handleDisconnect);
+      socket.on("request-device-info", sendDeviceInfo);
+      socket.on("max-connections-reached", handleMaxConnections)
+      socket.on("manually-disconnect", handleManualDisconnect)
+      socket.on("layout", (layout: string) => {
+        setLayout(layout)
+      })
+
+      return () => {
+        socket.off("connect", handleConnect);
+        socket.off("disconnect", handleDisconnect);
+        socket.off("request-device-info", sendDeviceInfo);
+        socket.off("max-connections-reached", handleMaxConnections);
+        socket.off("manually-disconnect", handleManualDisconnect);
+      };
+    }
+  }, [socket])
 
     // Add meta tag to prevent zooming
     const viewport = document.querySelector('meta[name="viewport"]');
@@ -31,30 +79,31 @@ function App() {
       meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
       document.head.appendChild(meta);
     }
-
-    // Prevent pinch-to-zoom on touch devices
-    // document.addEventListener('touchmove', function(event) {
-    //   if (event.scale !== 1) {
-    //     event.preventDefault();
-    //   }8
-    // }, { passive: false });
-
-  const handleJoystickMove = (data: any) => {
-    console.log(data);
-    if (socket) {
-      socket.emit("joystick-move", data);
-    }
-  };
-
-  return (
-    <>
-      {useGamepad ? (
-        socket ? <LayoutOne socket={socket} /> : <p>Connecting...</p>
-      ) : (
-        <Joystick size={100} baseColor="gray" stickColor="blue" move={handleJoystickMove} />
-      )}
-    </>
-  );
+    return (
+      <>
+        {layout === 'layout-one' ? (
+          socket ? 
+            <LayoutOne 
+            socket={socket}
+            connected={connected} 
+            maxConnections={maxConnections} 
+            manuallyDisconnected={manuallyDisconnected} /> 
+          : 
+            <p>Connecting...</p>
+        ) : layout === 'layout-two' ? (
+          socket ? 
+            <LayoutTwo 
+            socket={socket} 
+            connected={connected} 
+            maxConnections={maxConnections} 
+            manuallyDisconnected={manuallyDisconnected}/> 
+          : 
+            <p>Connecting...</p>
+        ) : (
+          <p>Layout not selected</p>
+        )}
+      </>
+    );
 }
 
 export default App;

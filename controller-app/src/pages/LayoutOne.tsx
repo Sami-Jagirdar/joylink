@@ -6,6 +6,9 @@ import { DPad } from "../components/DPad";
 
 interface LayoutOneProps {
   socket: SocketIOClient.Socket;
+  connected: boolean;
+  maxConnections: boolean;
+  manuallyDisconnected: boolean;
 }
 
 let lastProcessedTime = 0;
@@ -26,11 +29,8 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
-export default function VirtualGamepad({ socket }: LayoutOneProps) {
-  const [connected, setConnected] = useState(false);
+export default function VirtualGamepad({ socket, connected, maxConnections, manuallyDisconnected }: LayoutOneProps) {
   const [isLandscape, setIsLandscape] = useState(false);
-  const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
-  const [maxConnections, setMaxConnections] = useState(false);
 
   const handleMotion = (event: DeviceMotionEvent) => {
     const now = Date.now();
@@ -49,21 +49,6 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
   }
 
   useEffect(() => {
-    const handleConnect = () => setConnected(true);
-    const handleDisconnect = () => setConnected(false);
-    const handleManualDisconnect = () => setManuallyDisconnected(true);
-    const handleMaxConnections = () => setMaxConnections(true);
-
-    const sendDeviceInfo = () => {
-      const deviceName = getDeviceType(socket);
-      socket.emit('device-info', { deviceName: deviceName });
-    };
-
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    socket.on("request-device-info", sendDeviceInfo);
-    socket.on("max-connections-reached", handleMaxConnections)
-    socket.on("manually-disconnect", handleManualDisconnect)
 
     // Check and update orientation
     const checkOrientation = () => {
@@ -78,12 +63,10 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
     window.addEventListener('orientationchange', checkOrientation);
 
     return () => {
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
     };
-  }, [socket]);
+  }, [isLandscape]);
 
   const handleButtonEvent = (buttonId: string, isPressed: boolean) => {
     if (connected) {
