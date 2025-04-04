@@ -178,7 +178,7 @@ app.on("ready", async () => {
             socket.emit('request-device-info');
 
             // send layout to client
-            socket.emit('layout', 'layout-two');
+            socket.emit('layout', {layout: 'layout-two', voiceEnabled: true, motionEnabled: false});
 
             let clientDeviceName: string | null = null;
             socket.on('device-info', async (data: { deviceName: string }) => {
@@ -214,6 +214,10 @@ app.on("ready", async () => {
                 //console.log(data);
                 await controllerLayout.inputs.get('accelerometer')?.handleInput(data);
 
+            })
+
+            socket.on('audio-stream', async (data) => {
+                console.log('Audio stream data: ', data);
             })
 
             ipcMain.on('manually-disconnect', (_event, data) => {

@@ -18,9 +18,19 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
+interface LayoutSettigs {
+  layout: string;
+  voiceEnabled: boolean;
+  motionEnabled: boolean;
+}
+
 function App() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
-  const [layout, setLayout] = useState(''); // Toggle between joystick and gamepad
+  const [layout, setLayout] = useState<LayoutSettigs>({
+    layout: '',
+    voiceEnabled: false,
+    motionEnabled: false,
+  });
   const [connected, setConnected] = useState(false);
   const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
   const [maxConnections, setMaxConnections] = useState(false);
@@ -53,7 +63,7 @@ function App() {
       socket.on("request-device-info", sendDeviceInfo);
       socket.on("max-connections-reached", handleMaxConnections)
       socket.on("manually-disconnect", handleManualDisconnect)
-      socket.on("layout", (layout: string) => {
+      socket.on("layout", (layout: LayoutSettigs) => {
         setLayout(layout)
       })
 
@@ -81,22 +91,27 @@ function App() {
     }
     return (
       <>
-        {layout === 'layout-one' ? (
+        {layout.layout === 'layout-one' ? (
           socket ? 
             <LayoutOne 
             socket={socket}
             connected={connected} 
             maxConnections={maxConnections} 
-            manuallyDisconnected={manuallyDisconnected} /> 
+            manuallyDisconnected={manuallyDisconnected}
+            voiceEnabled={layout.voiceEnabled} 
+            motionEnabled={layout.motionEnabled}/> 
           : 
             <p>Connecting...</p>
-        ) : layout === 'layout-two' ? (
+        ) : layout.layout === 'layout-two' ? (
           socket ? 
             <LayoutTwo 
             socket={socket} 
             connected={connected} 
             maxConnections={maxConnections} 
-            manuallyDisconnected={manuallyDisconnected}/> 
+            manuallyDisconnected={manuallyDisconnected}
+            voiceEnabled={layout.voiceEnabled}
+            motionEnabled={layout.motionEnabled}
+            /> 
           : 
             <p>Connecting...</p>
         ) : (

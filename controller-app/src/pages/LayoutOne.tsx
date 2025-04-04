@@ -9,6 +9,8 @@ interface LayoutOneProps {
   connected: boolean;
   maxConnections: boolean;
   manuallyDisconnected: boolean;
+  voiceEnabled: boolean;
+  motionEnabled: boolean;
 }
 
 let lastProcessedTime = 0;
@@ -29,7 +31,7 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
-export default function VirtualGamepad({ socket, connected, maxConnections, manuallyDisconnected }: LayoutOneProps) {
+export default function VirtualGamepad({ socket, connected, maxConnections, manuallyDisconnected, voiceEnabled, motionEnabled }: LayoutOneProps) {
   const [isLandscape, setIsLandscape] = useState(false);
 
   const handleMotion = (event: DeviceMotionEvent) => {
@@ -44,8 +46,12 @@ export default function VirtualGamepad({ socket, connected, maxConnections, manu
     }
 
   }
-  if (window.DeviceMotionEvent) {
+  if (motionEnabled && window.DeviceMotionEvent) {
     window.addEventListener('devicemotion', handleMotion);
+  }
+
+  if (voiceEnabled) {
+
   }
 
   useEffect(() => {
@@ -66,7 +72,7 @@ export default function VirtualGamepad({ socket, connected, maxConnections, manu
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
     };
-  }, [isLandscape]);
+  }, []);
 
   const handleButtonEvent = (buttonId: string, isPressed: boolean) => {
     if (connected) {

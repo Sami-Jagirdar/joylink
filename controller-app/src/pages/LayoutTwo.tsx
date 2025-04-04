@@ -1,16 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GameButton from "../components/GameButton";
 import { DPad } from "../components/DPad";
 import { Joystick } from "react-joystick-component";
+import { WebVoiceProcessor } from "@picovoice/web-voice-processor";
 
 interface LayoutTwoProps {
   socket: SocketIOClient.Socket;
   connected: boolean;
   maxConnections: boolean;
   manuallyDisconnected: boolean;
+  voiceEnabled: boolean;
+  motionEnabled: boolean;
 }
+
+let lastProcessedTime = 0;
+const THROTTLE_INTERVAL = 16;
 
 function getDeviceType(socket: SocketIOClient.Socket) {
   const ua = navigator.userAgent;
@@ -27,8 +33,24 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
-export default function LayoutTwo({ socket, connected, maxConnections, manuallyDisconnected }: LayoutTwoProps) {
+export default function LayoutTwo({ socket, connected, maxConnections, manuallyDisconnected, voiceEnabled, motionEnabled }: LayoutTwoProps) {
   const [isLandscape, setIsLandscape] = useState(false);
+  const processorEngineRef = useRef<any>(null); // Use a ref to store the processor engine
+  const handleMotion = (event: DeviceMotionEvent) => {
+    const now = Date.now();
+    if (now - lastProcessedTime >= THROTTLE_INTERVAL) {
+      socket.emit('device-motion', {
+        x: event.accelerationIncludingGravity?.x,
+        y: event.accelerationIncludingGravity?.y,
+        z: event.accelerationIncludingGravity?.z,
+      })
+      lastProcessedTime = now
+    }
+
+  }
+  if (motionEnabled && window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', handleMotion);
+  }
 
   useEffect(() => {
     // Check and update orientation
@@ -42,9 +64,35 @@ export default function LayoutTwo({ socket, connected, maxConnections, manuallyD
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
 
+    if (voiceEnabled) {
+      const startAudioCapture = async () => {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        const processorEngine = {
+          onmessage: (event: MessageEvent) => {
+            const data = event.data;
+            socket.emit('audio-stream', { audio: data });
+          }
+        }
+        processorEngineRef.current = processorEngine;
+
+        await WebVoiceProcessor.subscribe(processorEngine)
+      }
+
+      startAudioCapture();
+
+    }
+
+    
     return () => {
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
+      if (voiceEnabled && processorEngineRef.current) {
+        const unsubscribe = async () => {
+          await WebVoiceProcessor.unsubscribe(processorEngineRef.current);
+          await WebVoiceProcessor.reset();
+        }
+        unsubscribe();
+      }
     }
   }, [])
 
