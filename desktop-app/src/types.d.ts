@@ -59,5 +59,6 @@ interface Window {
         listenForControllerUrl: (callback: (data: string) => void) => void;
         getControllerUrl: () => Promise<string>;
         setControllerMappings: (mappings: Mapping[]) => void;
+        saveControllerMappings: (mappings: Mapping[]) => void;
     };
 }

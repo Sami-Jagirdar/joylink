@@ -111,6 +111,11 @@ function Customize() {
         setIsModalOpen(false);
       };
 
+    const handleSaveControllerMappings = () => {
+        // Send manual disconnect request via Electron and sockets
+        window.electron.saveControllerMappings(mappings);
+    };
+
     return (
         <div className="container min-w-screen mx-auto p-4">
             <h1 className=" text-xl font-bold text-white mb-4">Customize Controller Mappings</h1>
@@ -165,12 +170,20 @@ function Customize() {
                 ))}
             </div>
 
-            <button
-                className="px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
-                onClick={() => navigate('/connections')}
-            >
-                Play
-            </button>
+            <div className="flex mt-4">
+                <button
+                    className="px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
+                    onClick={() => navigate('/connections')}
+                >
+                    Play
+                </button>
+                {/* <button
+                    className="ml-auto mr-4 px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
+                    onClick={() => handleSaveControllerMappings()}
+                >
+                    Save Layout
+                </button> */}
+            </div>
 
             <CustomizeModal
                 isOpen={isModalOpen}

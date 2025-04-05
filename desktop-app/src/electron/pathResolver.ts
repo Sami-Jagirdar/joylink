@@ -25,3 +25,11 @@ export function getControllerPath() {
 export function getCertPath() {
   return path.join(app.getAppPath(), '/certs');
 }
+
+export function getLayoutPath() {
+  return path.join(
+    app.getAppPath(),
+    isDev() ? '.' : '..',
+    '/src/electron/layouts'
+  );
+}

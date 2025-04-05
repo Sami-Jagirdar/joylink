@@ -31,6 +31,10 @@ contextBridge.exposeInMainWorld("electron", {
 
     setControllerMappings: (data: Mapping[]) => {
         ipcRenderer.send('set-controller-mappings', data);
+    },
+
+    saveControllerMappings: (data: Mapping[]) => {
+        ipcRenderer.send('save-controller-mappings', data);
     }
 } satisfies Window["electron"]);
 
