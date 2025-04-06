@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 import KeyboardLayout from './keyboard';
-import KeyboardLayout from './keyboard';
 import { Mapping } from '../../types';
-import { ButtonNum, KeyNum } from '../models';
-import {Key, Button} from "@nut-tree-fork/nut-js";
-import MouseLayout from './mouse';
 import { ButtonNum, KeyNum } from '../models';
 import {Key, Button} from "@nut-tree-fork/nut-js";
 import MouseLayout from './mouse';
@@ -93,16 +89,7 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
     }
     
   }
-  const handleMouseClickChange = (newButton: ButtonNum) => {
-    console.log(`new keys: ${JSON.stringify(newButton)}`);
-    setTempMouseClick(newButton);
-  }
 
-  const handleClose = () => {
-    setCurrentDirection('up');
-    onClose();
-    
-  }
   const handleMouseClickChange = (newButton: ButtonNum) => {
     console.log(`new keys: ${JSON.stringify(newButton)}`);
     setTempMouseClick(newButton);
@@ -151,14 +138,6 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
         })
       }
     } else {
-      const button: Button = tempMouseClick?.valueOf();
-      onSave({
-        ...selectedMapping,
-        target: {
-          type: 'mouseClick',
-          mouseClick: button
-        }
-      })
       const button: Button = tempMouseClick?.valueOf();
       onSave({
         ...selectedMapping,
@@ -273,14 +252,12 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
         <div className="flex justify-end space-x-2 p-4 border-t border-neutral-700">
           <button
             onClick={handleClose}
-            onClick={handleClose}
             className="px-4 py-2 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 hover:cursor-pointer"
           >
             Cancel
           </button>
           {objectType === 'multi' && currentDirection !== 'right' ? (
               <button
-                className="px-4 py-2 bg-red-700 text-white rounded-md hover:cursor-pointer hover:bg-red-500"
                 className="px-4 py-2 bg-red-700 text-white rounded-md hover:cursor-pointer hover:bg-red-500"
                 onClick={nextDirection}
               >
