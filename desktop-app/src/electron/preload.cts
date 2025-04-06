@@ -31,7 +31,16 @@ contextBridge.exposeInMainWorld("electron", {
 
     setControllerMappings: (data: Mapping[]) => {
         ipcRenderer.send('set-controller-mappings', data);
+    },
+
+    getLayouts: async () => {
+        return await ipcInvoke('getLayouts');
+    },
+
+    setLayout: (data: string) => {
+        ipcRenderer.send('set-layout', data);
     }
+
 } satisfies Window["electron"]);
 
 // Wrapper for ipcRenderer.invoke to make it typesafe.

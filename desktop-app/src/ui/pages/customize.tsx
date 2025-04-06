@@ -216,12 +216,24 @@ function Customize() {
                 ))}
             </div>
 
-            <button
-                className="px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
-                onClick={() => navigate('/connections')}
-            >
-                Play
-            </button>
+            <div className="flex justify-end justify-items-end mr-5"> 
+                <button
+                    className="px-8 py-4 mr-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
+                    onClick={() => navigate('/choose-layout')}
+                >
+                    Back
+                </button>
+
+                <button
+                    className="px-8 py-4 bg-red-700 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
+                    onClick={() => navigate('/connections')}
+                >
+                    Play
+                </button>
+            </div>
+            
+
+            
 
             <CustomizeModal
                 isOpen={isModalOpen}

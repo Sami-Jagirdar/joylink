@@ -9,6 +9,8 @@ declare global {
             sendManualDisconnect: (deviceName: string) => void; 
             getControllerMappings: () => Promise<Mapping[]>;
             setControllerMappings: (mappings: Mapping[]) => void;
+            getLayouts: () => Promise<string[]>;
+            setLayout: (layout: string) => void;
             // Define other methods you expose via contextBridge here
         };
     }
