@@ -5,6 +5,7 @@ import GameButton from "../components/GameButton";
 import { DPad } from "../components/DPad";
 import { Joystick } from "react-joystick-component";
 import { WebVoiceProcessor } from "@picovoice/web-voice-processor";
+WebVoiceProcessor.setOptions({frameLength:512, outputSampleRate: 16000});
 
 interface LayoutTwoProps {
   socket: SocketIOClient.Socket;
@@ -63,14 +64,16 @@ export default function LayoutTwo({ socket, connected, maxConnections, manuallyD
     // Listen for orientation changes
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
-
+    voiceEnabled = true;
     if (voiceEnabled) {
       const startAudioCapture = async () => {
         await navigator.mediaDevices.getUserMedia({ audio: true });
         const processorEngine = {
           onmessage: (event: MessageEvent) => {
             const data = event.data;
-            socket.emit('audio-stream', { audio: data });
+            const frame = data.inputFrame as Int16Array;
+            console.log(frame);
+            socket.emit('audio-stream', frame);
           }
         }
         processorEngineRef.current = processorEngine;
