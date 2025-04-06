@@ -154,7 +154,7 @@ app.on("ready", async () => {
     const mainWindow = new BrowserWindow({
         webPreferences: {
             preload: getPreloadPath(),
-        }
+        },
     });
 
     if (isDev()) {
@@ -167,6 +167,7 @@ app.on("ready", async () => {
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"))
     }
+
     const serverUrl = await serveControllerApp();
     const [server, url] = serverUrl
     const controllerLayout = new ControllerLayout("LayoutA");
@@ -174,6 +175,11 @@ app.on("ready", async () => {
     if (mainWindow) {
         mainWindow.webContents.send('setControllerUrl', url);
     }
+
+    mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.setTitle('JoyLink');
+        mainWindow.setIcon(path.join(app.getAppPath(), 'src', 'assets', 'icon.png'));
+      });
 
     ipcHandle('getControllerUrl', () => {
         return url;

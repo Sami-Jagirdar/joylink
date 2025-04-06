@@ -13,6 +13,10 @@ import buttonLeft from '../../assets/button-Left.svg'
 import buttonRight from '../../assets/button-Right.svg'
 import buttonStart from '../../assets/button-Start.svg'
 import buttonSelect from '../../assets/button-Select.svg'
+import leftAnalog from '../../assets/left-analog.png'
+import rightAnalog from '../../assets/right-analog.png'
+import tilt from '../../assets/tilt.png'
+import voice from '../../assets/voice.png'
 import { ButtonNum, KeyNum } from "../models";
 import CustomizeModal from "../components/customizeModal";
 
@@ -35,6 +39,10 @@ function Customize() {
         'right': buttonRight,
         'start': buttonStart,
         'select': buttonSelect,
+        'left-analog': leftAnalog,
+        'right-analog': rightAnalog,
+        'accelerometer': tilt,
+
       };
 
     useEffect(() => {
@@ -95,6 +103,39 @@ function Customize() {
         );
     };
 
+    const renderMouseMotionBinding = (sensitivity: number) => {
+        return (
+        <div className="flex space-x-5">
+            <div className="w-1/4 h-10 rounded-md flex items-center justify-center bg-neutral-900 border border-purple-300">
+                {sensitivity} / 100
+            </div>
+        </div>
+        );
+    };
+
+    const renderAnalogKeyBindings = (keybinding: typeof Key[keyof typeof Key][], direction: string) => {
+        const pills = [];
+        for (let i = 0; i < 3; i++) {
+        const key = keybinding[i];
+        pills.push(
+            <div
+            key={i}
+            className={`w-1/4 h-10 rounded-md flex items-center justify-center ${
+                key ? 'bg-neutral-900 border border-yellow-200' : 'bg-neutral-900 border border-neutral-400'
+            }`}
+            >
+            {KeyNum[key] || ''}
+            </div>
+        );
+        }
+        return (
+        <div className="space-x-2">
+            <div className="flex space-x-2">{pills}</div>
+            <span className="mt-2 text-sm font-medium capitalize">{direction}</span>
+        </div>
+        );
+    };
+
     const openModal = () => {
         setIsModalOpen(true);
       };
@@ -113,14 +154,21 @@ function Customize() {
                     <div key={mapping.id} className=" w-auto mb-2 p-4 border-b-neutral-500 border-b rounded-xl shadow-md hover:shadow-lg transition-shadow">
                         <div className="flex items-center ">
                         {/* Input section */}
-                        <div className="mr-6 w-auto flex items-center">
+                        <div className="mr-6 w-48 flex items-center">
                             <div className="rounded-full flex items-center justify-center mr-3">
+                            {buttonIcons[mapping.id] ? (
                                 <img src={buttonIcons[mapping.id]} alt={mapping.id} className="w-12 h-12" />
+                            ) : (
+                                <img src={voice} alt={mapping.id} className="w-12 h-12" />
+                            )}
                             </div>
-
-                            <div>
-                                <div className="font-medium">{mapping.source.charAt(0).toUpperCase() + mapping.source.slice(1)}</div>
-                                <div className="text-xs text-gray-300">ID: {mapping.id}</div>
+                            <div className="min-w-0">
+                            <div className="font-medium">
+                                {mapping.source.charAt(0).toUpperCase() + mapping.source.slice(1)}
+                            </div>
+                            <div className="text-xs text-gray-300 break-words">
+                                ID: {mapping.id}
+                            </div>
                             </div>
                         </div>
 
@@ -130,16 +178,27 @@ function Customize() {
                                 <span className={`px-3 py-1 rounded-full ${
                                     mapping.target.type === 'keyboard' ? 'border-blue-100 bg-neutral-800 text-blue-300' :
                                     mapping.target.type === 'mouseClick' ? 'border-green-100 bg-neutral-800 text-green-300' :
+                                    mapping.target.type === 'analogKeyboard' ? 'border-yellow-100 bg-neutral-800 text-yellow-200' :
                                     'bg-neutral-800 text-purple-300'
                                 }`}>
                                     {mapping.target.type === 'keyboard' ? 'Keyboard' :
                                     mapping.target.type === 'mouseClick' ? 'Mouse Click' :
-                                    mapping.target.type === 'mouseMotion' ? 'Mouse Motion':
+                                    mapping.target.type === 'mouseMotion' ? 'Mouse Motion (Sensitivity)':
                                     'Analog Keyboard'}
                                 </span>
                             </div>
                             {mapping.target.type === 'keyboard' && renderKeyBindings(mapping.target.keybinding)}
                             {mapping.target.type === 'mouseClick' && renderMouseClickBindings(mapping.target.mouseClick)}
+                            {mapping.target.type === 'analogKeyboard' && (
+                                <div className="flex flex-col space-y-2">
+                                {renderAnalogKeyBindings(mapping.target.positiveY, 'Up')}
+                                {renderAnalogKeyBindings(mapping.target.negativeX, 'Left')}
+                                {renderAnalogKeyBindings(mapping.target.negativeY, 'Down')}
+                                {renderAnalogKeyBindings(mapping.target.positiveX, 'Right')}
+                                </div>
+                            )}
+                            {mapping.target.type === 'mouseMotion' && renderMouseMotionBinding(mapping.target.sensitivity)}
+            
                         </div>
 
                         {/* Customize button */}

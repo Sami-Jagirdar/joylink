@@ -1,10 +1,16 @@
 import { useNavigate } from 'react-router-dom';
+import icon from '../../assets/icon.png';
 
 function StartPage() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen min-w-screen flex flex-col items-center justify-center">
+      <img
+          src={icon}
+          alt="JoyLink Logo"
+          className="w-32 h-32 mb-4"
+        />
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-red-600 mb-2">JoyLink</h1>
         <p className="text-xl text-zinc-400">Turn your mobile device into a game controller</p>

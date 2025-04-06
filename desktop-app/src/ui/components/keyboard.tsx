@@ -32,7 +32,7 @@ interface KeyboardLayoutProps {
 
 function KeyboardLayout({ currentMapping, allMappings, onMappingChange, currentDirection}: KeyboardLayoutProps) {
 
-  const [layoutName, setLayoutName] = useState<string>("default");
+  const [layoutName,] = useState<string>("default");
   const [selectedKeys, setSelectedKeys] = useState<KeyNum[]>([]);
   const [unavailableKeys, ] = useState<KeyNum[]>([]);
 
@@ -98,10 +98,6 @@ function KeyboardLayout({ currentMapping, allMappings, onMappingChange, currentD
     });
   };
 
-  // // clear all key themes when component mounts or current direction changes
-  // useEffect(() => {
-    
-  // }, [currentDirection])
 
   useEffect(() => {
     // Get all keyboard refs
@@ -333,24 +329,9 @@ const sortKeysByModifierPriority = (keys: KeyNum[]): KeyNum[] => {
 
   };
 
-  const handleShift = (): void => {
-    setLayoutName(prevLayout => 
-      prevLayout === "default" ? "shift" : "default"
-    );
-
-    
-  };
-
   return (
     <div>
-        <div className="ml-2 mb-4 flex">
-            <button
-            className="px-4 py-2 bg-black text-neutral-400 rounded-md hover:!border-red-700 hover:border-1 cursor-pointer"
-            onClick={handleShift}
-            >
-                Shift View
-            </button>
-        </div>
+
  
       <div className={"keyboardContainer"}>
         <Keyboard

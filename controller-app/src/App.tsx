@@ -27,7 +27,7 @@ interface LayoutSettigs {
 function App() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
   const [layout, setLayout] = useState<LayoutSettigs>({
-    layout: '',
+    layout: 'layout-two',
     voiceEnabled: false,
     motionEnabled: false,
   });
