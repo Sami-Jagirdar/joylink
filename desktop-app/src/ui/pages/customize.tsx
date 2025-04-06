@@ -48,13 +48,8 @@ function Customize() {
     const handleCustomize = (mapping: Mapping) => {
         console.log(`Customize button clicked for: ${mapping.id}`);
         setSelectedMapping(mapping)
-        handleButtonCustomize(mapping)
+        openModal();
     };
-
-    const handleButtonCustomize = (mapping: Mapping) => {
-        console.log(mapping);
-        openModal()
-    }
 
     const handleMappingSave = (updatedMapping: Mapping) => {
         const updatedMappings = mappings.map(mapping =>
@@ -65,8 +60,6 @@ function Customize() {
               mapping.id === updatedMapping.id ? updatedMapping : mapping
             )
         );
-
-        console.log(updatedMapping)
         window.electron.setControllerMappings(updatedMappings);
     }
 

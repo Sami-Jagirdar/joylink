@@ -62,15 +62,8 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
 
   const handleKeybindingChange = (newKeys: KeyNum[]) => {
     if (objectType === 'single') {
-      console.log(`new keys: ${JSON.stringify(newKeys)}`);
-      console.log(`new keys: ${JSON.stringify(newKeys)}`);
       setTempKeybinding(newKeys);
     } else if (objectType === 'multi') {
-      console.log(`new keys: ${JSON.stringify(newKeys)}`)
-      setTempMultiKeybinding({
-        ...tempMultiKeybinding,
-        [currentDirection]: newKeys
-      });
       setTempMultiKeybinding({
         ...tempMultiKeybinding,
         [currentDirection]: newKeys
@@ -103,8 +96,6 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
 
   const handleSave = () => {
     if (!selectedMapping) {return;}
-    console.log(123)
-    console.log(tempMultiKeybinding)
 
     if (selectedTab === 'keyboard') {
       if (objectType === 'single') {
@@ -193,9 +184,6 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
               <MouseLayout
               currentMapping={selectedMapping}
               onMappingChange={handleMouseClickChange} />
-              <MouseLayout
-              currentMapping={selectedMapping}
-              onMappingChange={handleMouseClickChange} />
             </div>
           ) : (
             <div className="space-y-4">
@@ -221,29 +209,6 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
                   currentDirection={currentDirection}/>
                 </div> 
               </>)}
-              
-              {objectType==='single' && 
-              (<>
-                <p>Select upto 3 keys on the keyboard to bind to chosen button.</p>
-                <div className="bg-neutral-800 rounded-md p-4">
-                  <KeyboardLayout
-                  currentMapping={selectedMapping}
-                  allMappings={mappings}
-                  onMappingChange={handleKeybindingChange}/>
-                </div> 
-              </>)}
-              {objectType==='multi' && 
-              (<>
-                <p>Select upto 3 keys on the keyboard to bind to the {currentDirection} direction. </p>
-                <div className="bg-neutral-800 rounded-md p-4">
-                  <KeyboardLayout
-                  currentMapping={selectedMapping}
-                  allMappings={mappings}
-                  onMappingChange={handleKeybindingChange}
-                  currentDirection={currentDirection}/>
-                </div> 
-              </>)}
-              
             </div>
           )}
         </div>
