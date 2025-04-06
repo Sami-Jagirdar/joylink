@@ -4,6 +4,7 @@ import { Mapping } from '../../types';
 import { ButtonNum, KeyNum } from '../models';
 import {Key, Button} from "@nut-tree-fork/nut-js";
 import MouseLayout from './mouse';
+import SensitivitySlider from './sensitivitySlider';
 
 interface CustomizeModalProps {
   isOpen: boolean;
@@ -48,6 +49,7 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
   const [objectType, setObjectType] = useState<'single' | 'multi'>();
   const [tempKeybinding, setTempKeybinding] = useState<KeyNum[]>([])
   const [tempMouseClick, setTempMouseClick] = useState<ButtonNum>(ButtonNum.LEFT);
+  const [tempMouseSensitivity, setTempMouseSensitivity] = useState<number>(1);
   const [tempMultiKeybinding, setTempMultiKeybinding] = useState<multiKey>({
     up: [],
     down: [],
@@ -57,7 +59,7 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
   const [currentDirection, setCurrentDirection] = useState<'up'| 'down'| 'left'| 'right'>('up')
 
   useEffect(() => {
-    setObjectType(selectedMapping.source === 'button' ? 'single' : 'multi')
+    setObjectType(selectedMapping.source === 'button' || selectedMapping.source === 'voice' ? 'single' : 'multi')
   }, [selectedMapping])
 
   const handleKeybindingChange = (newKeys: KeyNum[]) => {
@@ -86,6 +88,10 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
   const handleMouseClickChange = (newButton: ButtonNum) => {
     console.log(`new keys: ${JSON.stringify(newButton)}`);
     setTempMouseClick(newButton);
+  }
+
+  const handleMouseSensitivityChange = (newSensitivity: number) => {
+    setTempMouseSensitivity(newSensitivity);
   }
 
   const handleClose = () => {
@@ -129,14 +135,25 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
         })
       }
     } else {
-      const button: Button = tempMouseClick?.valueOf();
-      onSave({
-        ...selectedMapping,
-        target: {
-          type: 'mouseClick',
-          mouseClick: button
+      if (selectedMapping.source === 'analog' || selectedMapping.source === 'motion' ) {
+        onSave({
+          ...selectedMapping,
+          target: {
+            type: 'mouseMotion',
+            sensitivity: tempMouseSensitivity
+          }
+        })
+      } else {
+        const button: Button = tempMouseClick?.valueOf();
+        onSave({
+          ...selectedMapping,
+          target: {
+            type: 'mouseClick',
+            mouseClick: button
+          }
+        })
         }
-      })
+      
     }
 
     onClose();
@@ -181,9 +198,17 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Mouse Customization</h3>
               <p>Configure your mouse settings here.</p>
-              <MouseLayout
-              currentMapping={selectedMapping}
-              onMappingChange={handleMouseClickChange} />
+              {(selectedMapping.source === 'button' || selectedMapping.source === 'voice') && (
+                <MouseLayout
+                currentMapping={selectedMapping}
+                onMappingChange={handleMouseClickChange} />
+              ) }
+              {(selectedMapping.target.type === 'mouseMotion' && selectedMapping.source === 'motion' || selectedMapping.source === 'analog') && (
+                <SensitivitySlider 
+                  currentMapping={selectedMapping} 
+                  onSensitivityChange={handleMouseSensitivityChange} 
+                />
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -221,7 +246,7 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
           >
             Cancel
           </button>
-          {objectType === 'multi' && currentDirection !== 'right' ? (
+          {selectedTab === 'keyboard' && objectType === 'multi' && currentDirection !== 'right' ? (
               <button
                 className="px-4 py-2 bg-red-700 text-white rounded-md hover:cursor-pointer hover:bg-red-500"
                 onClick={nextDirection}
