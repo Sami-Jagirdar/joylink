@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GameButton from "../components/GameButton";
 import { DPad } from "../components/DPad";
+import { WebVoiceProcessor } from "@picovoice/web-voice-processor";
 
 interface LayoutOneProps {
   socket: SocketIOClient.Socket;
@@ -33,6 +34,7 @@ function getDeviceType(socket: SocketIOClient.Socket) {
 
 export default function VirtualGamepad({ socket, connected, maxConnections, manuallyDisconnected, voiceEnabled, motionEnabled }: LayoutOneProps) {
   const [isLandscape, setIsLandscape] = useState(false);
+  const processorEngineRef = useRef<any>(null); // needs to be any since the type is not defined in the library
 
   const handleMotion = (event: DeviceMotionEvent) => {
     const now = Date.now();
@@ -50,10 +52,6 @@ export default function VirtualGamepad({ socket, connected, maxConnections, manu
     window.addEventListener('devicemotion', handleMotion);
   }
 
-  if (voiceEnabled) {
-
-  }
-
   useEffect(() => {
 
     // Check and update orientation
@@ -67,10 +65,35 @@ export default function VirtualGamepad({ socket, connected, maxConnections, manu
     // Listen for orientation changes
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
+    if (voiceEnabled) {
+      const startAudioCapture = async () => {
+              await navigator.mediaDevices.getUserMedia({ audio: true });
+              const processorEngine = {
+                onmessage: (event: MessageEvent) => {
+                  const data = event.data;
+                  const frame = data.inputFrame as Int16Array;
+                  console.log(frame);
+                  socket.emit('audio-stream', frame);
+                }
+              }
+              processorEngineRef.current = processorEngine;
+      
+              await WebVoiceProcessor.subscribe(processorEngine)
+            }
+      
+            startAudioCapture();
+    }
 
     return () => {
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
+      if (voiceEnabled && processorEngineRef.current) {
+        const unsubscribe = async () => {
+          await WebVoiceProcessor.unsubscribe(processorEngineRef.current);
+          await WebVoiceProcessor.reset();
+        }
+        unsubscribe();
+      }
     };
   }, []);
 
@@ -82,7 +105,10 @@ export default function VirtualGamepad({ socket, connected, maxConnections, manu
       }
 
       socket.emit("button", { button: buttonId, pressed: isPressed });
-      console.log(`Button ${buttonId} ${isPressed ? "pressed" : "released"}`);
+
+      if (navigator.vibrate) {
+        navigator.vibrate(75);
+      }
     }
   };
 

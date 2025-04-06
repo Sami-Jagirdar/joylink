@@ -64,7 +64,6 @@ export default function LayoutTwo({ socket, connected, maxConnections, manuallyD
     // Listen for orientation changes
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
-    voiceEnabled = true;
     if (voiceEnabled) {
       const startAudioCapture = async () => {
         await navigator.mediaDevices.getUserMedia({ audio: true });
