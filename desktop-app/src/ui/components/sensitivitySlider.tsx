@@ -10,6 +10,7 @@ function SensitivitySlider({ currentMapping, onSensitivityChange }: SensitivityS
 
     const [sensitivity, setSensitivity] = React.useState<number>(1);
   const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSensitivity(parseInt(event.target.value, 10));
     onSensitivityChange(parseInt(event.target.value, 10));
   };
 
