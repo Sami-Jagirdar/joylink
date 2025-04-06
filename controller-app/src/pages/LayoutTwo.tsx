@@ -74,7 +74,10 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
     if (connected) {
 
       // Haptics for button press (Only works for Chrome and Edge)
-      navigator.vibrate(75);
+      if (navigator.vibrate) {
+        navigator.vibrate(75);
+      }
+     
 
       socket.emit("button", { button: buttonId, pressed: isPressed });
       console.log(`Button ${buttonId} ${isPressed ? "pressed" : "released"}`);
@@ -98,7 +101,9 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
   // Haptics for when joystick starts moving, for Chrome and Edge only
   const handleJoystickStart = () => {
     if (connected) {
-      navigator.vibrate(75);
+      if (navigator.vibrate) {
+        navigator.vibrate(75);
+      }
     }
   }
 
