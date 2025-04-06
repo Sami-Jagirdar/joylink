@@ -52,7 +52,7 @@ function Connections() {
   return (
 
       <div className="flex flex-col items-center mx-auto pt-8 px-4 min-h-screen min-w-screen">
-        <h1 className="text-2xl font-bold mb-6">JoyLink</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center">Scan URL to Play</h1>
     
         <p className="mb-3 text-white-700 break-all">{url}</p>
         

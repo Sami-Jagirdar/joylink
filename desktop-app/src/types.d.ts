@@ -50,6 +50,7 @@ type EventPayloadMapping = {
     getControllerMappings: Mapping[];
     getControllerUrl: string;
     getLayouts: string[];
+    getCurrentLayout: string;
 }
 
 interface Window {
@@ -62,5 +63,6 @@ interface Window {
         setControllerMappings: (mappings: Mapping[]) => void;
         getLayouts: () => Promise<string[]>;
         setLayout: (layout: string) => void;
+        getCurrentLayout: () => Promise<string>;
     };
 }

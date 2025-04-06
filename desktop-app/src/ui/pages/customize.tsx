@@ -146,7 +146,7 @@ function Customize() {
 
     return (
         <div className="container min-w-screen mx-auto p-4">
-            <h1 className=" text-xl font-bold text-white mb-4">Customize Controller Mappings</h1>
+            <h1 className="text-3xl font-bold mb-8 text-center">Customize Layout Mappings</h1>
             {/* Have a png of the chosen layout at the top */}
 
             <div className="space-y-3 p-4">

@@ -37,6 +37,10 @@ contextBridge.exposeInMainWorld("electron", {
         return await ipcInvoke('getLayouts');
     },
 
+    getCurrentLayout: async () => {
+        return await ipcInvoke('getCurrentLayout');
+    },
+
     setLayout: (data: string) => {
         ipcRenderer.send('set-layout', data);
     }

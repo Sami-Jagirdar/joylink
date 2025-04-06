@@ -265,6 +265,10 @@ app.on("ready", async () => {
         return layouts;
     });
 
+    ipcHandle('getCurrentLayout', () => {
+        return currentLayoutName;
+    });
+
     ipcMain.on('set-controller-mappings',  async (_event, data) => {
         currentLayout = data;
         await initializeController(controllerLayout, data);

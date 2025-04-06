@@ -11,6 +11,7 @@ declare global {
             setControllerMappings: (mappings: Mapping[]) => void;
             getLayouts: () => Promise<string[]>;
             setLayout: (layout: string) => void;
+            getCurrentLayout: () => Promise<string>;
             // Define other methods you expose via contextBridge here
         };
     }
