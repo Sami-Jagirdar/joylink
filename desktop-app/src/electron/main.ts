@@ -89,7 +89,12 @@ let mappingsLayoutA: Mapping[] = [
     {
         id: 'punch',
         source: 'voice',
-        target: {type: 'keyboard', keybinding: [Key.Enter]}
+        target: {type: 'keyboard', keybinding: [Key.Num8]}
+    },
+    {
+        id: 'shoot',
+        source: 'voice',
+        target: {type: 'mouseClick', mouseClick: Button.LEFT}
     }
 ]
 
@@ -254,12 +259,12 @@ app.on("ready", async () => {
                 if (voiceEnabled && rhino) {
                     const isFinalized = rhino.process(int16Frame);
                     if (isFinalized) {
-                        console.log(rhino)
                         const command = rhino.getInference();
-                        console.log(command);
                         if (command.isUnderstood) {
                             console.log(command);
-                            // await controllerLayout.inputs.get('punch')?.handleInput(command.intent);
+                            if (command.slots?.commandString) {
+                                await controllerLayout.inputs.get(command.slots.commandString)?.handleInput();
+                            }
                         }
                     }
                 }

@@ -4,3 +4,4 @@ desktop-app/certs/cert.pem
 desktop-app/certs/key.pem
 desktop-app/.env
 .env
+/desktop-app/.env

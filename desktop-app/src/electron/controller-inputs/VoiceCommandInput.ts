@@ -1,3 +1,4 @@
+import { keyboard, mouse } from "@nut-tree-fork/nut-js";
 import { KeyboardTarget, MouseClickTarget } from "../../types.js";
 import { ControllerInput } from "./ControllerInput.js";
 
@@ -7,23 +8,25 @@ export class VoiceCommandInput extends ControllerInput {
         super(id, mappingTarget);
     }
 
-    async handleInput(frame: unknown): Promise<void> {
-        // if (!this.rhino) return;
-        // const isFinalized = this.rhino.process(frame);
-        // if (isFinalized) {
-        //     const command = this.rhino.getInference();
-        //     if (command.isUnderstood) {
-        //         console.log(command);
-        //     }
-        // }
-        console.log(frame);
+    async handleInput(): Promise<void> {
+        if (this.mappingTarget.type === "keyboard") {
+            await this.handleKeyboardInput();
+        } else if (this.mappingTarget.type === "mouseClick") {
+            await this.handleMouseInput();
+        } else {
+            throw new Error("Invalid mapping target type.");
+        }
     }
 
-    private async handleKeyboardInput(command: string) {
-        console.log(command);
+    private async handleKeyboardInput() {
+        const {keybinding} = this.mappingTarget as KeyboardTarget;
+        await keyboard.pressKey(...keybinding);
+        await keyboard.releaseKey(...keybinding);
     }
 
-    private async handleMouseInput(command: string) {
-        console.log(command);
+    private async handleMouseInput() {
+        const {mouseClick} = this.mappingTarget as MouseClickTarget;
+        await mouse.pressButton(mouseClick);
+        await mouse.releaseButton(mouseClick);
     }
 }
