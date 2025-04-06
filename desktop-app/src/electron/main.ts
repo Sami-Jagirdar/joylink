@@ -172,9 +172,9 @@ const layouts = ['layout-one', 'layout-two'];
 
 const maxConnections = 1;
 const connectedClients: string[] = [];
-const voiceEnabled = true;
+let voiceEnabled = true;
 let rhino: Rhino | null = null;
-// const motionEnabled = false;
+let motionEnabled = false;
 
 const initializeController = async (controller: ControllerLayout, mappings: Mapping[]) => {
     controller.clearInputs();
@@ -269,6 +269,14 @@ app.on("ready", async () => {
         return currentLayoutName;
     });
 
+    ipcHandle('getMotionEnabled', () => {
+        return motionEnabled;
+    });
+
+    ipcHandle('getVoiceEnabled', () => {
+        return voiceEnabled;
+    });
+
     ipcMain.on('set-controller-mappings',  async (_event, data) => {
         currentLayout = data;
         await initializeController(controllerLayout, data);
@@ -283,6 +291,16 @@ app.on("ready", async () => {
             currentLayout = mappingsLayoutTwo;
         }
     })
+
+    ipcMain.on('setMotionEnabled', (_event, data) => {
+        motionEnabled = data;
+        console.log("Motion enabled: ", motionEnabled);
+    });
+
+    ipcMain.on('setVoiceEnabled', (_event, data) => {
+        voiceEnabled = data;
+        console.log("Voice enabled: ", voiceEnabled);
+    });
 
     if (server) {
         server.on('connection', async (socket) => {
@@ -300,7 +318,8 @@ app.on("ready", async () => {
             socket.emit('request-device-info');
 
             // send layout to client
-            socket.emit('layout', {layout: currentLayoutName, voiceEnabled: true, motionEnabled: false});
+            console.log(voiceEnabled, motionEnabled);
+            socket.emit('layout', {layout: currentLayoutName, voiceEnabled: voiceEnabled, motionEnabled: motionEnabled});
 
             let clientDeviceName: string | null = null;
             socket.on('device-info', async (data: { deviceName: string }) => {
