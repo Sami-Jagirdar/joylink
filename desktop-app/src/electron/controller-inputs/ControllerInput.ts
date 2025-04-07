@@ -39,6 +39,6 @@ export abstract class ControllerInput {
         }
     }
 
-    abstract handleInput(data: unknown): Promise<void>;
+    abstract handleInput(data?: unknown): Promise<void>;
 
 }

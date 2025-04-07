@@ -35,7 +35,36 @@ contextBridge.exposeInMainWorld("electron", {
 
     saveControllerMappings: (data: Mapping[]) => {
         ipcRenderer.send('save-controller-mappings', data);
-    }
+    },
+
+    getLayouts: async () => {
+        return await ipcInvoke('getLayouts');
+    },
+
+    getCurrentLayout: async () => {
+        return await ipcInvoke('getCurrentLayout');
+    },
+
+    setLayout: (data: string) => {
+        ipcRenderer.send('set-layout', data);
+    },
+
+    getMotionEnabled: async () => {
+        return await ipcInvoke('getMotionEnabled');
+    },
+
+    setMotionEnabled: (data: boolean) => {
+        ipcRenderer.send('setMotionEnabled', data);
+    },
+
+    getVoiceEnabled: async () => {
+        return await ipcInvoke('getVoiceEnabled');
+    },
+
+    setVoiceEnabled: (data: boolean) => {
+        ipcRenderer.send('setVoiceEnabled', data);
+    },
+
 } satisfies Window["electron"]);
 
 // Wrapper for ipcRenderer.invoke to make it typesafe.

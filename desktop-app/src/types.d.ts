@@ -49,6 +49,10 @@ type Accelerometer = {
 type EventPayloadMapping = {
     getControllerMappings: Mapping[];
     getControllerUrl: string;
+    getLayouts: string[];
+    getCurrentLayout: string;
+    getMotionEnabled: boolean;
+    getVoiceEnabled: boolean;
 }
 
 interface Window {
@@ -59,6 +63,13 @@ interface Window {
         listenForControllerUrl: (callback: (data: string) => void) => void;
         getControllerUrl: () => Promise<string>;
         setControllerMappings: (mappings: Mapping[]) => void;
+        getLayouts: () => Promise<string[]>;
+        setLayout: (layout: string) => void;
+        getCurrentLayout: () => Promise<string>;
+        getMotionEnabled: () => Promise<boolean>;
+        setMotionEnabled: (data: boolean) => void;
+        getVoiceEnabled: () => Promise<boolean>;
+        setVoiceEnabled: (data: boolean) => void;
         saveControllerMappings: (mappings: Mapping[]) => void;
     };
 }

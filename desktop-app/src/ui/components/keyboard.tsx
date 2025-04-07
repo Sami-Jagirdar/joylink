@@ -26,49 +26,78 @@ interface KeyboardOptions {
 interface KeyboardLayoutProps {
   currentMapping?: Mapping;
   allMappings: Mapping[];
-  onMappingChange?: (newKeybinding: KeyNum[]) => void;
+  onMappingChange: (newKeybinding: KeyNum[]) => void;
+  currentDirection?: 'up'| 'down'| 'left'| 'right';
 }
 
-function KeyboardLayout({ currentMapping, allMappings, onMappingChange}: KeyboardLayoutProps) {
+function KeyboardLayout({ currentMapping, allMappings, onMappingChange, currentDirection}: KeyboardLayoutProps) {
 
-  const [layoutName, setLayoutName] = useState<string>("default");
+  const [layoutName,] = useState<string>("default");
   const [selectedKeys, setSelectedKeys] = useState<KeyNum[]>([]);
   const [unavailableKeys, ] = useState<KeyNum[]>([]);
 
   useEffect(() => {
-    // Set selected keys from current mapping if it's a keyboard mapping
-    if (currentMapping && currentMapping.target.type === 'keyboard') {
-      const keys: KeyNum[] = [];
+    console.log(`currentMapping:${JSON.stringify(currentMapping)}`);
+    const keys: KeyNum[] = [];
+    if (currentMapping && currentMapping.target.type === 'keyboard') {  
       currentMapping.target.keybinding.forEach(keycap => {
         const num = keycap.valueOf();
         keys.push(num)
       })
-      setSelectedKeys(keys);
-    } else {
-      setSelectedKeys([]);
+
+    } else if (currentMapping && currentMapping.target.type === 'analogKeyboard' && currentDirection) {
+      if (currentDirection === 'up') {
+        currentMapping.target.positiveY.forEach(keycap => {
+          const num = keycap.valueOf();
+          keys.push(num)
+        })
+      } else if (currentDirection === 'down') {
+        currentMapping.target.negativeY.forEach(keycap => {
+          const num = keycap.valueOf();
+          keys.push(num)
+        })
+      } else if (currentDirection === 'left') {
+        currentMapping.target.negativeX.forEach(keycap => {
+          const num = keycap.valueOf();
+          keys.push(num)
+        })
+      } else if (currentDirection === 'right') {
+        currentMapping.target.positiveX.forEach(keycap => {
+          const num = keycap.valueOf();
+          keys.push(num)
+        })
+      }
     }
 
-    // The below code for getting unavailable keys is unnecessary
-    // Users should be able to map the same keys
-    // to different buttons if they want
+    setSelectedKeys(keys);
+    
 
-    // const unavailable: KeyNum[] = [];
-    // allMappings.forEach(mapping => {
-    //   if (
-    //     mapping.id !== currentMapping?.id && 
-    //     mapping.target.type === 'keyboard'
-    //   ) {
-    //     (mapping.target as KeyboardTarget).keybinding.forEach(key => {
-    //       const num: KeyNum = key.valueOf();
-    //       if (!unavailable.includes(num)) {
-    //         unavailable.push(num);
-    //       }
-    //     });
-    //   }
-    // });
-    // setUnavailableKeys(unavailable);
+  }, [currentMapping, allMappings, currentDirection]);
 
-  }, [currentMapping, allMappings]);
+  const clearAllKeyThemes = () => {
+    const keyboardRefs = [
+      keyboardRef.current,
+      keyboardControlPadRef.current,
+      keyboardArrowRef.current,
+      keyboardNumPadRef.current,
+      keyboardNumPadEndRef.current
+    ];
+    
+    // Create a complete list of all possible keyboard buttons
+    const allPossibleButtons = [
+      ...Object.values(keyNumToKeyboardMap),
+    ];
+    
+    // Remove the "selected-key" theme from all possible buttons
+    allPossibleButtons.forEach(button => {
+      keyboardRefs.forEach(kbRef => {
+        if (kbRef) {
+          kbRef.removeButtonTheme(button, "selected-key");
+        }
+      });
+    });
+  };
+
 
   useEffect(() => {
     // Get all keyboard refs
@@ -79,6 +108,9 @@ function KeyboardLayout({ currentMapping, allMappings, onMappingChange}: Keyboar
       keyboardNumPadRef.current,
       keyboardNumPadEndRef.current
     ];
+
+    clearAllKeyThemes();
+    console.log(selectedKeys);
 
     // Apply selected key theme
     selectedKeys.forEach(key => {
@@ -111,7 +143,10 @@ function KeyboardLayout({ currentMapping, allMappings, onMappingChange}: Keyboar
         });
       }
     });
-  }, [selectedKeys, unavailableKeys, layoutName]);
+
+    onMappingChange(selectedKeys);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedKeys, unavailableKeys, layoutName, ]);
 
 
 /* sortKeysByModifierPriority Generated with the help of Claude LLM
@@ -272,9 +307,7 @@ const sortKeysByModifierPriority = (keys: KeyNum[]): KeyNum[] => {
 
       const newSelected = selectedKeys.filter(k => k !== keyboardToKeyNumMap[button]);
       setSelectedKeys(newSelected);
-      if (onMappingChange) {
-        onMappingChange(newSelected);
-      }
+      onMappingChange(newSelected);
     } else {
 
       if (selectedKeys.length >= 3) {
@@ -291,31 +324,14 @@ const sortKeysByModifierPriority = (keys: KeyNum[]): KeyNum[] => {
       const sortedKeys = sortKeysByModifierPriority(newSelected);
 
       setSelectedKeys(sortedKeys)
-      if (onMappingChange) {
-        onMappingChange(sortedKeys);
-      }
+      onMappingChange(sortedKeys);
     }
 
   };
 
-  const handleShift = (): void => {
-    setLayoutName(prevLayout => 
-      prevLayout === "default" ? "shift" : "default"
-    );
-
-    
-  };
-
   return (
     <div>
-        <div className="ml-2 mb-4 flex">
-            <button
-            className="px-4 py-2 bg-black text-neutral-400 rounded-md hover:!border-red-700 hover:border-1 cursor-pointer"
-            onClick={handleShift}
-            >
-                Shift View
-            </button>
-        </div>
+
  
       <div className={"keyboardContainer"}>
         <Keyboard
