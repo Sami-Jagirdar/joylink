@@ -29,18 +29,18 @@
   - Create a free picovoice account and train the Rhino Model. (This is required, because the free version only limits its usage to one user, so we developers can't share our key or model to the public).
   (https://www.youtube.com/watch?v=IPC_pCT9r1o&t=1s&ab_channel=Picovoice)
   - Choose the following intent and slots (don't modify) -->
-  - Intent Name: controllerCommand
-    Intent: Joy Link $command:commandString
-    Slot Name: $command
-    Slots:
-    stop
-    move
-    block
-    kick
-    jump
-    punch
-    crouch
-    shoot
+  - - Intent Name: controllerCommand
+    - Intent: Joy Link $command:commandString
+    - Slot Name: $command
+    - Slots:
+      - stop
+      - move
+      - block
+      - kick
+      - jump
+      - punch
+      - crouch
+      - shoot
   - Choose the model option for desktop (Windows, MacOS, or Linux depending on your OS) 
   - You should now have your own access key and a zip folder with a `.rhn` file. This is your contexts file for PicoVoice to recognize.
   - cd back into the `desktop-app`
@@ -73,12 +73,10 @@
   ## 3. Customize Page
   - The customize page allows you to customize the mappings of the layout you chose previously.
   - There are 4 types of inputs
-    -- Button: Click on customize to bind it to upto 3 keys 
-  OR a mouse click
-    -- Analog: Click on customize to bind it to upto 3 keys for each direction of the analog (left, right, up, down) 
-  OR directly map the analog x-y position to mouse motion. You can choose to set the sensitivity of the mouse motion (1-100)
-    -- Voice commands: Same customize options as Button
-    -- Motion controls: Same customize options as analog, but here you are mapping the x-y acceleration of your phone with respect to the ground using accelerometer readings from your device.
+    - Button: Click on customize to bind it to upto 3 keys OR a mouse click
+    - Analog: Click on customize to bind it to upto 3 keys for each direction of the analog (left, right, up, down) OR directly map the analog x-y position to mouse motion. You can choose to set the sensitivity of the mouse motion (1-100)
+    - Voice commands: Same customize options as Button
+    - Motion controls: Same customize options as analog, but here you are mapping the x-y acceleration of your phone with respect to the ground using accelerometer readings from your device.
   - Note: If you choose to map a single input to multiple simultaneous keys (up to 3), two of the chosen keys must be modifier keys (CTRL, SHIFT, ALT) because the library used to automate key presses cannot press two regular keys (like Key.A + Key.W) simultaneously, it must press one before the other. This limitation doesn't apply to modifier keys.
   - After you have customized your inputs, you can shoose to save the mappings as a default layout by clicking on the Save Layout button. If you close and rerun your application, the loaded mappings for the chosen layout will be the one that was saved last.
   - Click on the Play button to continue
