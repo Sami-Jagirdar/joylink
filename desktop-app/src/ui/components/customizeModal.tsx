@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import KeyboardLayout from './keyboard'; // Import your keyboard component
+import KeyboardLayout from './keyboard';
 import { Mapping } from '../../types';
-import { KeyNum } from '../models';
-import {Key} from "@nut-tree-fork/nut-js";
+import { ButtonNum, KeyNum } from '../models';
+import {Key, Button} from "@nut-tree-fork/nut-js";
+import MouseLayout from './mouse';
+import SensitivitySlider from './sensitivitySlider';
 
 interface CustomizeModalProps {
   isOpen: boolean;
@@ -46,6 +48,8 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
   const [selectedTab, setSelectedTab] = useState<'mouse' | 'keyboard'>('keyboard');
   const [objectType, setObjectType] = useState<'single' | 'multi'>();
   const [tempKeybinding, setTempKeybinding] = useState<KeyNum[]>([])
+  const [tempMouseClick, setTempMouseClick] = useState<ButtonNum>(ButtonNum.LEFT);
+  const [tempMouseSensitivity, setTempMouseSensitivity] = useState<number>(1);
   const [tempMultiKeybinding, setTempMultiKeybinding] = useState<multiKey>({
     up: [],
     down: [],
@@ -55,17 +59,17 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
   const [currentDirection, setCurrentDirection] = useState<'up'| 'down'| 'left'| 'right'>('up')
 
   useEffect(() => {
-    setObjectType(selectedMapping.source === 'button' ? 'single' : 'multi')
-  })
+    setObjectType(selectedMapping.source === 'button' || selectedMapping.source === 'voice' ? 'single' : 'multi')
+  }, [selectedMapping])
+
   const handleKeybindingChange = (newKeys: KeyNum[]) => {
     if (objectType === 'single') {
-      console.log(`new keys: ${JSON.stringify(newKeys)}`)
       setTempKeybinding(newKeys);
     } else if (objectType === 'multi') {
-      console.log(`new keys: ${JSON.stringify(newKeys)}`)
-      const multiBindings = tempMultiKeybinding
-      multiBindings[currentDirection] = newKeys
-      setTempMultiKeybinding(multiBindings)
+      setTempMultiKeybinding({
+        ...tempMultiKeybinding,
+        [currentDirection]: newKeys
+      });
     }
   };
   const nextDirection = () => {
@@ -78,11 +82,26 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
     } else if (currentDirection == 'right') {
       setCurrentDirection('up')
     }
+    
   }
+
+  const handleMouseClickChange = (newButton: ButtonNum) => {
+    console.log(`new keys: ${JSON.stringify(newButton)}`);
+    setTempMouseClick(newButton);
+  }
+
+  const handleMouseSensitivityChange = (newSensitivity: number) => {
+    setTempMouseSensitivity(newSensitivity);
+  }
+
+  const handleClose = () => {
+    setCurrentDirection('up');
+    onClose();
+  }
+
+
   const handleSave = () => {
     if (!selectedMapping) {return;}
-    console.log(123)
-    console.log(tempMultiKeybinding)
 
     if (selectedTab === 'keyboard') {
       if (objectType === 'single') {
@@ -116,7 +135,25 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
         })
       }
     } else {
-      // TODO: Handle mouse click save
+      if (selectedMapping.source === 'analog' || selectedMapping.source === 'motion' ) {
+        onSave({
+          ...selectedMapping,
+          target: {
+            type: 'mouseMotion',
+            sensitivity: tempMouseSensitivity
+          }
+        })
+      } else {
+        const button: Button = tempMouseClick?.valueOf();
+        onSave({
+          ...selectedMapping,
+          target: {
+            type: 'mouseClick',
+            mouseClick: button
+          }
+        })
+        }
+      
     }
 
     onClose();
@@ -161,27 +198,42 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Mouse Customization</h3>
               <p>Configure your mouse settings here.</p>
-
-              {/* Display mappings for mouse */}
-              <div className="bg-neutral-800 p-4 rounded-md">
-                <h4 className="font-medium mb-2">Current Mappings</h4>
-                <pre className="text-sm overflow-x-auto">
-                  {JSON.stringify(mappings, null, 2)}
-                </pre>
-              </div>
+              {(selectedMapping.source === 'button' || selectedMapping.source === 'voice') && (
+                <MouseLayout
+                currentMapping={selectedMapping}
+                onMappingChange={handleMouseClickChange} />
+              ) }
+              {(selectedMapping.target.type === 'mouseMotion' && selectedMapping.source === 'motion' || selectedMapping.source === 'analog') && (
+                <SensitivitySlider 
+                  currentMapping={selectedMapping} 
+                  onSensitivityChange={handleMouseSensitivityChange} 
+                />
+              )}
             </div>
           ) : (
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Keyboard Customization</h3>
-              {objectType==='single' && (<p>Select upto 3 keys on the keyboard to bind to chosen button.</p>)}
-              {objectType==='multi' && (<p>Select upto 3 keys on the keyboard to bind to the {currentDirection} direction. </p>)}
-              {/* Keyboard Component */}
-              <div className="bg-neutral-800 rounded-md p-4">
-                <KeyboardLayout
-                currentMapping={selectedMapping}
-                allMappings={mappings}
-                onMappingChange={handleKeybindingChange}/>
-              </div>
+              {objectType==='single' && 
+              (<>
+                <p>Select upto 3 keys on the keyboard to bind to chosen button.</p>
+                <div className="bg-neutral-800 rounded-md p-4">
+                  <KeyboardLayout
+                  currentMapping={selectedMapping}
+                  allMappings={mappings}
+                  onMappingChange={handleKeybindingChange}/>
+                </div> 
+              </>)}
+              {objectType==='multi' && 
+              (<>
+                <p>Select upto 3 keys on the keyboard to bind to the {currentDirection} direction. </p>
+                <div className="bg-neutral-800 rounded-md p-4">
+                  <KeyboardLayout
+                  currentMapping={selectedMapping}
+                  allMappings={mappings}
+                  onMappingChange={handleKeybindingChange}
+                  currentDirection={currentDirection}/>
+                </div> 
+              </>)}
             </div>
           )}
         </div>
@@ -189,14 +241,14 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
         {/* Modal Footer */}
         <div className="flex justify-end space-x-2 p-4 border-t border-neutral-700">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="px-4 py-2 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 hover:cursor-pointer"
           >
             Cancel
           </button>
-          {objectType === 'multi' && currentDirection !== 'right' ? (
+          {selectedTab === 'keyboard' && objectType === 'multi' && currentDirection !== 'right' ? (
               <button
-                className="px-4 py-2 bg-blue-700 text-white rounded-md hover:cursor-pointer hover:bg-red-500"
+                className="px-4 py-2 bg-red-700 text-white rounded-md hover:cursor-pointer hover:bg-red-500"
                 onClick={nextDirection}
               >
                 Next

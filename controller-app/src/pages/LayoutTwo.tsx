@@ -1,13 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GameButton from "../components/GameButton";
 import { DPad } from "../components/DPad";
 import { Joystick } from "react-joystick-component";
+import { WebVoiceProcessor } from "@picovoice/web-voice-processor";
+WebVoiceProcessor.setOptions({frameLength:512, outputSampleRate: 16000});
 
 interface LayoutTwoProps {
   socket: SocketIOClient.Socket;
+  connected: boolean;
+  maxConnections: boolean;
+  manuallyDisconnected: boolean;
+  voiceEnabled: boolean;
+  motionEnabled: boolean;
 }
+
+let lastProcessedTime = 0;
+const THROTTLE_INTERVAL = 16;
 
 function getDeviceType(socket: SocketIOClient.Socket) {
   const ua = navigator.userAgent;
@@ -24,29 +34,26 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
-export default function LayoutTwo({ socket }: LayoutTwoProps) {
-  const [connected, setConnected] = useState(false);
+export default function LayoutTwo({ socket, connected, maxConnections, manuallyDisconnected, voiceEnabled, motionEnabled }: LayoutTwoProps) {
   const [isLandscape, setIsLandscape] = useState(false);
-  const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
-  const [maxConnections, setMaxConnections] = useState(false);
+  const processorEngineRef = useRef<any>(null); // Use a ref to store the processor engine
+  const handleMotion = (event: DeviceMotionEvent) => {
+    const now = Date.now();
+    if (now - lastProcessedTime >= THROTTLE_INTERVAL) {
+      socket.emit('device-motion', {
+        x: event.accelerationIncludingGravity?.x,
+        y: event.accelerationIncludingGravity?.y,
+        z: event.accelerationIncludingGravity?.z,
+      })
+      lastProcessedTime = now
+    }
+
+  }
+  if (motionEnabled && window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', handleMotion);
+  }
 
   useEffect(() => {
-    const handleConnect = () => setConnected(true);
-    const handleDisconnect = () => setConnected(false);
-    const handleManualDisconnect = () => setManuallyDisconnected(true);
-    const handleMaxConnections = () => setMaxConnections(true);
-
-    const sendDeviceInfo = () => {
-      const deviceName = getDeviceType(socket);
-      socket.emit('device-info', { deviceName: deviceName });
-    };
-
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    socket.on("request-device-info", sendDeviceInfo);
-    socket.on("max-connections-reached", handleMaxConnections)
-    socket.on("manually-disconnect", handleManualDisconnect)
-
     // Check and update orientation
     const checkOrientation = () => {
       setIsLandscape(window.innerWidth > window.innerHeight);
@@ -54,27 +61,51 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
     
     // Initial check
     checkOrientation();
-    
     // Listen for orientation changes
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
+    if (voiceEnabled) {
+      const startAudioCapture = async () => {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        const processorEngine = {
+          onmessage: (event: MessageEvent) => {
+            const data = event.data;
+            const frame = data.inputFrame as Int16Array;
+            console.log(frame);
+            socket.emit('audio-stream', frame);
+          }
+        }
+        processorEngineRef.current = processorEngine;
 
+        await WebVoiceProcessor.subscribe(processorEngine)
+      }
+
+      startAudioCapture();
+
+    }
+
+    
     return () => {
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
-      socket.off("request-device-info", sendDeviceInfo);
-      socket.off("max-connections-reached", handleMaxConnections);
-      socket.off("manually-disconnect", handleManualDisconnect);
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
-    };
-  }, [socket]);
+      if (voiceEnabled && processorEngineRef.current) {
+        const unsubscribe = async () => {
+          await WebVoiceProcessor.unsubscribe(processorEngineRef.current);
+          await WebVoiceProcessor.reset();
+        }
+        unsubscribe();
+      }
+    }
+  }, [])
 
   const handleButtonEvent = (buttonId: string, isPressed: boolean) => {
     if (connected) {
 
       // Haptics for button press (Only works for Chrome and Edge)
-      navigator.vibrate(75);
+      if (navigator.vibrate) {
+        navigator.vibrate(75);
+      }
+     
 
       socket.emit("button", { button: buttonId, pressed: isPressed });
       console.log(`Button ${buttonId} ${isPressed ? "pressed" : "released"}`);
@@ -98,7 +129,9 @@ export default function LayoutTwo({ socket }: LayoutTwoProps) {
   // Haptics for when joystick starts moving, for Chrome and Edge only
   const handleJoystickStart = () => {
     if (connected) {
-      navigator.vibrate(75);
+      if (navigator.vibrate) {
+        navigator.vibrate(75);
+      }
     }
   }
 

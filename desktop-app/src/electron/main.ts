@@ -1,4 +1,6 @@
 import { app, BrowserWindow } from 'electron';
+import dotenv from 'dotenv';
+dotenv.config({ path: path.join(app.getAppPath(), '.env') });
 import path from 'path';
 // import { isDev } from './util.js';
 import { getPreloadPath } from './pathResolver.js';
@@ -11,6 +13,8 @@ import { ipcMain } from 'electron';
 import { ipcHandle, isDev } from './util.js';
 import { AnalogInput } from './controller-inputs/AnaogInput.js';
 import { MotionInput } from './controller-inputs/MotionControllerInput.js';
+import { VoiceCommandInput } from './controller-inputs/VoiceCommandInput.js';
+import { Rhino } from '@picovoice/rhino-node';
 
 // This should ideally be a constant and we should wrap it in a class or object and mutate it via those objects for data integrity
 let mappingsLayoutA: Mapping[] = [
@@ -82,10 +86,23 @@ let mappingsLayoutA: Mapping[] = [
         source: 'motion',
         target: {type: 'mouseMotion', sensitivity: 25}
     },
+    {
+        id: 'punch',
+        source: 'voice',
+        target: {type: 'keyboard', keybinding: [Key.Num8]}
+    },
+    {
+        id: 'shoot',
+        source: 'voice',
+        target: {type: 'mouseClick', mouseClick: Button.LEFT}
+    }
 ]
 
 const maxConnections = 1;
 const connectedClients: string[] = [];
+const voiceEnabled = true;
+let rhino: Rhino | null = null;
+// const motionEnabled = false;
 
 const initializeControllerA = async (controller: ControllerLayout, mappings: Mapping[]) => {
     controller.clearInputs();
@@ -121,6 +138,15 @@ const initializeControllerA = async (controller: ControllerLayout, mappings: Map
                 controller.addInput(motionInput)
             }
         }
+        else if (mapping.source === "voice") {
+            if (mapping.target.type === 'keyboard') {
+                const voiceCommandInput = new VoiceCommandInput(mapping.id, mapping.target as KeyboardTarget);
+                controller.addInput(voiceCommandInput);
+            } else if (mapping.target.type === 'mouseClick') {
+                const voiceCommandInput = new VoiceCommandInput(mapping.id, mapping.target as MouseClickTarget);
+                controller.addInput(voiceCommandInput);
+            }
+        }
     }
 }
 
@@ -128,7 +154,7 @@ app.on("ready", async () => {
     const mainWindow = new BrowserWindow({
         webPreferences: {
             preload: getPreloadPath(),
-        }
+        },
     });
 
     if (isDev()) {
@@ -141,6 +167,7 @@ app.on("ready", async () => {
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"))
     }
+
     const serverUrl = await serveControllerApp();
     const [server, url] = serverUrl
     const controllerLayout = new ControllerLayout("LayoutA");
@@ -148,6 +175,11 @@ app.on("ready", async () => {
     if (mainWindow) {
         mainWindow.webContents.send('setControllerUrl', url);
     }
+
+    mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.setTitle('JoyLink');
+        mainWindow.setIcon(path.join(app.getAppPath(), 'src', 'assets', 'icon.png'));
+      });
 
     ipcHandle('getControllerUrl', () => {
         return url;
@@ -177,6 +209,9 @@ app.on("ready", async () => {
             // Request client to send device info
             socket.emit('request-device-info');
 
+            // send layout to client
+            socket.emit('layout', {layout: 'layout-two', voiceEnabled: true, motionEnabled: false});
+
             let clientDeviceName: string | null = null;
             socket.on('device-info', async (data: { deviceName: string }) => {
                 console.log("Device Type: ", data.deviceName);
@@ -189,7 +224,18 @@ app.on("ready", async () => {
                 }
             });
 
-            await initializeControllerA(controllerLayout, mappingsLayoutA)
+            await initializeControllerA(controllerLayout, mappingsLayoutA);
+            if (voiceEnabled) {
+                const accessKey = process.env.PICOVOICE_KEY;
+                const relativePath = process.env.CONTEXT_FILE_PATH;
+                if (!accessKey || !relativePath) {
+                    throw new Error("Picovoice access key or context path is not defined in the environment variables.");
+                }
+                const contextPath = path.resolve(process.cwd(), relativePath);
+                rhino = new Rhino(accessKey, contextPath);
+                // console.log(rhino.getContextInfo());
+            }
+            
 
             socket.on('joystick-move', async (data) => {
                 console.log('Joystick moved:', data);
@@ -213,6 +259,23 @@ app.on("ready", async () => {
 
             })
 
+            socket.on('audio-stream', async (data) => {
+                const arrayBuffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+                const int16Frame = new Int16Array(arrayBuffer);
+                if (voiceEnabled && rhino) {
+                    const isFinalized = rhino.process(int16Frame);
+                    if (isFinalized) {
+                        const command = rhino.getInference();
+                        if (command.isUnderstood) {
+                            console.log(command);
+                            if (command.slots?.commandString) {
+                                await controllerLayout.inputs.get(command.slots.commandString)?.handleInput();
+                            }
+                        }
+                    }
+                }
+            })
+
             ipcMain.on('manually-disconnect', (_event, data) => {
                 console.log(`Manually disconnecting: ${data}`);
 
@@ -220,6 +283,11 @@ app.on("ready", async () => {
                 const index = connectedClients.indexOf(data);
                 if (index !== -1) {
                     connectedClients.splice(index, 1);
+                }
+
+                if (rhino) {
+                    rhino.release();
+                    rhino = null;
                 }
 
                 // Send updated list to UI
@@ -244,6 +312,11 @@ app.on("ready", async () => {
                     if (index !== -1) {
                         connectedClients.splice(index, 1);
                     }
+                }
+
+                if (rhino) {
+                    rhino.release();
+                    rhino = null;
                 }
 
                 const mainWindow = BrowserWindow.getAllWindows()[0];

@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GameButton from "../components/GameButton";
 import { DPad } from "../components/DPad";
+import { WebVoiceProcessor } from "@picovoice/web-voice-processor";
 
 interface LayoutOneProps {
   socket: SocketIOClient.Socket;
+  connected: boolean;
+  maxConnections: boolean;
+  manuallyDisconnected: boolean;
+  voiceEnabled: boolean;
+  motionEnabled: boolean;
 }
 
 let lastProcessedTime = 0;
@@ -26,11 +32,9 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
-export default function VirtualGamepad({ socket }: LayoutOneProps) {
-  const [connected, setConnected] = useState(false);
+export default function VirtualGamepad({ socket, connected, maxConnections, manuallyDisconnected, voiceEnabled, motionEnabled }: LayoutOneProps) {
   const [isLandscape, setIsLandscape] = useState(false);
-  const [manuallyDisconnected, setManuallyDisconnected] = useState(false);
-  const [maxConnections, setMaxConnections] = useState(false);
+  const processorEngineRef = useRef<any>(null); // needs to be any since the type is not defined in the library
 
   const handleMotion = (event: DeviceMotionEvent) => {
     const now = Date.now();
@@ -44,26 +48,11 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
     }
 
   }
-  if (window.DeviceMotionEvent) {
+  if (motionEnabled && window.DeviceMotionEvent) {
     window.addEventListener('devicemotion', handleMotion);
   }
 
   useEffect(() => {
-    const handleConnect = () => setConnected(true);
-    const handleDisconnect = () => setConnected(false);
-    const handleManualDisconnect = () => setManuallyDisconnected(true);
-    const handleMaxConnections = () => setMaxConnections(true);
-
-    const sendDeviceInfo = () => {
-      const deviceName = getDeviceType(socket);
-      socket.emit('device-info', { deviceName: deviceName });
-    };
-
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    socket.on("request-device-info", sendDeviceInfo);
-    socket.on("max-connections-reached", handleMaxConnections)
-    socket.on("manually-disconnect", handleManualDisconnect)
 
     // Check and update orientation
     const checkOrientation = () => {
@@ -76,14 +65,37 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
     // Listen for orientation changes
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
+    if (voiceEnabled) {
+      const startAudioCapture = async () => {
+              await navigator.mediaDevices.getUserMedia({ audio: true });
+              const processorEngine = {
+                onmessage: (event: MessageEvent) => {
+                  const data = event.data;
+                  const frame = data.inputFrame as Int16Array;
+                  console.log(frame);
+                  socket.emit('audio-stream', frame);
+                }
+              }
+              processorEngineRef.current = processorEngine;
+      
+              await WebVoiceProcessor.subscribe(processorEngine)
+            }
+      
+            startAudioCapture();
+    }
 
     return () => {
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
+      if (voiceEnabled && processorEngineRef.current) {
+        const unsubscribe = async () => {
+          await WebVoiceProcessor.unsubscribe(processorEngineRef.current);
+          await WebVoiceProcessor.reset();
+        }
+        unsubscribe();
+      }
     };
-  }, [socket]);
+  }, []);
 
   const handleButtonEvent = (buttonId: string, isPressed: boolean) => {
     if (connected) {
@@ -93,7 +105,10 @@ export default function VirtualGamepad({ socket }: LayoutOneProps) {
       }
 
       socket.emit("button", { button: buttonId, pressed: isPressed });
-      console.log(`Button ${buttonId} ${isPressed ? "pressed" : "released"}`);
+
+      if (navigator.vibrate) {
+        navigator.vibrate(75);
+      }
     }
   };
 
