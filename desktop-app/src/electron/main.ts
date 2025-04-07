@@ -113,7 +113,37 @@ try {
             id: 'shoot',
             source: 'voice',
             target: {type: 'mouseClick', mouseClick: Button.LEFT}
-        }
+        },
+        {
+            id: 'stop',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num1]}
+        },
+        {
+            id: 'move',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num2]}
+        },
+        {
+            id: 'block',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num3]}
+        },
+        {
+            id: 'kick',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num6]}
+        },
+        {
+            id: 'jump',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num7]}
+        },
+        {
+            id: 'crouch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num0]}
+        },
     ];
 }
 
@@ -205,6 +235,36 @@ try {
             id: 'shoot',
             source: 'voice',
             target: {type: 'mouseClick', mouseClick: Button.LEFT}
+        },
+        {
+            id: 'stop',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num1]}
+        },
+        {
+            id: 'move',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num2]}
+        },
+        {
+            id: 'block',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num3]}
+        },
+        {
+            id: 'kick',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num6]}
+        },
+        {
+            id: 'jump',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num7]}
+        },
+        {
+            id: 'crouch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num0]}
         },
     ];
 }
