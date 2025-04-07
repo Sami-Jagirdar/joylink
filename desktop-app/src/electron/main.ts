@@ -17,7 +17,7 @@ import { VoiceCommandInput } from './controller-inputs/VoiceCommandInput.js';
 import { Rhino } from '@picovoice/rhino-node';
 
 // This should ideally be a constant and we should wrap it in a class or object and mutate it via those objects for data integrity
-let mappingsLayoutA: Mapping[] = [
+const mappingsLayoutTwo: Mapping[] = [
     {
         id: 'a',
         source: 'button',
@@ -96,15 +96,87 @@ let mappingsLayoutA: Mapping[] = [
         source: 'voice',
         target: {type: 'mouseClick', mouseClick: Button.LEFT}
     }
-]
+];
+
+const mappingsLayoutOne: Mapping[] = [
+    {
+        id: 'a',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.Num4]},
+    },
+    {
+        id: 'b',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.Num5]},
+    },
+    {
+        id: 'x',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.Num8]},
+    },
+    {
+        id: 'y',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.Num9]},
+    },
+    {
+        id: 'up',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.W]},
+    },
+    {
+        id: 'down',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.S]},
+    },
+    {
+        id: 'left',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.A]},
+    },
+    {
+        id: 'right',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.D]},
+    },
+    {
+        id: 'start',
+        source: 'button',
+        target: {type: 'keyboard', keybinding: [Key.Home]},
+    },
+    {
+        id: 'select',
+        source: 'button',
+        target: {type: 'mouseClick', mouseClick: Button.LEFT},
+    },
+    {
+        id: 'accelerometer',
+        source: 'motion',
+        target: {type: 'mouseMotion', sensitivity: 25}
+    },
+    {
+        id: 'punch',
+        source: 'voice',
+        target: {type: 'keyboard', keybinding: [Key.Num8]}
+    },
+    {
+        id: 'shoot',
+        source: 'voice',
+        target: {type: 'mouseClick', mouseClick: Button.LEFT}
+    }
+];
+
+let currentLayout = mappingsLayoutOne; // Default layout
+let currentLayoutName = 'layout-one'; // Default layout name
+const layouts = ['layout-one', 'layout-two'];
 
 const maxConnections = 1;
 const connectedClients: string[] = [];
-const voiceEnabled = true;
+let voiceEnabled = true;
 let rhino: Rhino | null = null;
-// const motionEnabled = false;
+let motionEnabled = false;
 
-const initializeControllerA = async (controller: ControllerLayout, mappings: Mapping[]) => {
+const initializeController = async (controller: ControllerLayout, mappings: Mapping[]) => {
     controller.clearInputs();
     for (const mapping of mappings) {
         if (mapping.source === 'button') {
@@ -186,13 +258,49 @@ app.on("ready", async () => {
     });
 
     ipcHandle('getControllerMappings', () => {
-        return mappingsLayoutA;
+        return currentLayout;
+    });
+
+    ipcHandle('getLayouts', () => {
+        return layouts;
+    });
+
+    ipcHandle('getCurrentLayout', () => {
+        return currentLayoutName;
+    });
+
+    ipcHandle('getMotionEnabled', () => {
+        return motionEnabled;
+    });
+
+    ipcHandle('getVoiceEnabled', () => {
+        return voiceEnabled;
     });
 
     ipcMain.on('set-controller-mappings',  async (_event, data) => {
-        mappingsLayoutA = data;
-        await initializeControllerA(controllerLayout, data);
+        currentLayout = data;
+        await initializeController(controllerLayout, data);
     })
+
+    ipcMain.on('set-layout', async (_event, data) => {
+        console.log("Setting layout to: ", data);
+        currentLayoutName = data;
+        if (data === 'layout-one') {
+            currentLayout = mappingsLayoutOne;
+        } else {
+            currentLayout = mappingsLayoutTwo;
+        }
+    })
+
+    ipcMain.on('setMotionEnabled', (_event, data) => {
+        motionEnabled = data;
+        console.log("Motion enabled: ", motionEnabled);
+    });
+
+    ipcMain.on('setVoiceEnabled', (_event, data) => {
+        voiceEnabled = data;
+        console.log("Voice enabled: ", voiceEnabled);
+    });
 
     if (server) {
         server.on('connection', async (socket) => {
@@ -210,7 +318,8 @@ app.on("ready", async () => {
             socket.emit('request-device-info');
 
             // send layout to client
-            socket.emit('layout', {layout: 'layout-two', voiceEnabled: true, motionEnabled: false});
+            console.log(voiceEnabled, motionEnabled);
+            socket.emit('layout', {layout: currentLayoutName, voiceEnabled: voiceEnabled, motionEnabled: motionEnabled});
 
             let clientDeviceName: string | null = null;
             socket.on('device-info', async (data: { deviceName: string }) => {
@@ -224,7 +333,7 @@ app.on("ready", async () => {
                 }
             });
 
-            await initializeControllerA(controllerLayout, mappingsLayoutA);
+            await initializeController(controllerLayout, currentLayout);
             if (voiceEnabled) {
                 const accessKey = process.env.PICOVOICE_KEY;
                 const relativePath = process.env.CONTEXT_FILE_PATH;
@@ -233,7 +342,6 @@ app.on("ready", async () => {
                 }
                 const contextPath = path.resolve(process.cwd(), relativePath);
                 rhino = new Rhino(accessKey, contextPath);
-                // console.log(rhino.getContextInfo());
             }
             
 

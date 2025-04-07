@@ -146,7 +146,7 @@ function Customize() {
 
     return (
         <div className="container min-w-screen mx-auto p-4">
-            <h1 className=" text-xl font-bold text-white mb-4">Customize Controller Mappings</h1>
+            <h1 className="text-3xl font-bold mb-8 text-center">Customize Layout Mappings</h1>
             {/* Have a png of the chosen layout at the top */}
 
             <div className="space-y-3 p-4">
@@ -216,12 +216,24 @@ function Customize() {
                 ))}
             </div>
 
-            <button
-                className="px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
-                onClick={() => navigate('/connections')}
-            >
-                Play
-            </button>
+            <div className="flex justify-end justify-items-end mr-5"> 
+                <button
+                    className="px-8 py-4 mr-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
+                    onClick={() => navigate('/choose-layout')}
+                >
+                    Back
+                </button>
+
+                <button
+                    className="px-8 py-4 bg-red-700 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
+                    onClick={() => navigate('/connections')}
+                >
+                    Play
+                </button>
+            </div>
+            
+
+            
 
             <CustomizeModal
                 isOpen={isModalOpen}

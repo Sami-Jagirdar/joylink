@@ -18,7 +18,7 @@ function StartPage() {
       
       <button
         className="px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
-        onClick={() => navigate('/customize')}
+        onClick={() => navigate('/choose-layout')}
       >
         Start
       </button>
