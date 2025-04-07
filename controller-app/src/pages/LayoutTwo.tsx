@@ -101,7 +101,11 @@ export default function LayoutTwo({ socket, connected, maxConnections, manuallyD
   const handleButtonEvent = (buttonId: string, isPressed: boolean) => {
     if (connected) {
 
-      // Haptics for button press (Only works for Chrome and Edge)
+      if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+        (DeviceMotionEvent as any).requestPermission()
+      }
+
+      // Haptics for button press (Only works for C4hrome and Edge)
       if (navigator.vibrate) {
         navigator.vibrate(75);
       }
