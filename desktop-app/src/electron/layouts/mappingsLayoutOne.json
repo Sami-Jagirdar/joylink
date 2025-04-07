@@ -50,24 +50,18 @@
         "target": { "type": "mouseClick", "mouseClick": "Button.LEFT" }
     },
     {
-        "id": "right-analog",
-        "source": "analog",
-        "target": { "type": "mouseMotion", "sensitivity": 15 }
-    },
-    {
-        "id": "left-analog",
-        "source": "analog",
-        "target": {
-            "type": "analogKeyboard",
-            "positiveX": ["Key.D"],
-            "positiveY": ["Key.W"],
-            "negativeX": ["Key.A"],
-            "negativeY": ["Key.S"]
-        }
-    },
-    {
         "id": "accelerometer",
         "source": "motion",
         "target": { "type": "mouseMotion", "sensitivity": 25 }
+    },
+    {
+        "id": "punch",
+        "source": "voice",
+        "target": {"type": "keyboard", "keybinding": ["Key.Num8"]}
+    },
+    {
+        "id": "shoot",
+        "source": "voice",
+        "target": {"type": "mouseClick", "mouseClick": "Button.LEFT"}
     }
 ]

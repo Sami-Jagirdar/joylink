@@ -1,4 +1,3 @@
-import { app, BrowserWindow } from 'electron';
 import dotenv from 'dotenv';
 dotenv.config({ path: path.join(app.getAppPath(), '.env') });
 import path from 'path';
@@ -16,27 +15,24 @@ import { MotionInput } from './controller-inputs/MotionControllerInput.js';
 import { VoiceCommandInput } from './controller-inputs/VoiceCommandInput.js';
 import { Rhino } from '@picovoice/rhino-node';
 
-let mappingsLayoutA: Mapping[] = [];
+let mappingsLayoutTwo: Mapping[] = [];
 
 // Determine the path to the JSON file.
-const mappingsLayoutAPath = path.join(getLayoutPath(), "mappingsLayoutA.json");
+const mappingsLayoutTwoPath = path.join(getLayoutPath(), "mappingsLayoutTwo.json");
 
 // Synchronously read and parse the JSON file at startup
 try {
-    // console.log("Starting JSON file read...");
-    const jsonData = fs.readFileSync(mappingsLayoutAPath, 'utf8');
-    // console.log("File contents:", jsonData);
+    const jsonData = fs.readFileSync(mappingsLayoutTwoPath, 'utf8');
     
     // Attempt to parse JSON
-    mappingsLayoutA = JSON.parse(jsonData);
-    mappingsLayoutA.forEach(convertMapping);
-    // console.log("Successfully parsed mappings:", mappingsLayoutA);
+    mappingsLayoutTwo = JSON.parse(jsonData);
+    mappingsLayoutTwo.forEach(convertMapping);
 } catch (error) {
     console.error("Error reading or parsing mappingsLayoutA.json:", error);
     console.warn("Falling back to default mappings.");
 
     // Fallback default mappings if parsing fails
-    mappingsLayoutA = [
+    mappingsLayoutTwo = [
         {
             id: 'a',
             source: 'button',
@@ -108,12 +104,118 @@ try {
             source: 'motion',
             target: { type: 'mouseMotion', sensitivity: 25 }
         },
+        {
+            id: 'punch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num8]}
+        },
+        {
+            id: 'shoot',
+            source: 'voice',
+            target: {type: 'mouseClick', mouseClick: Button.LEFT}
+        }
+    ];
+}
+
+//TODO: Repeat for the first layout (Ideally should be a single function called for each mapping)
+let mappingsLayoutOne: Mapping[] = [];
+const mappingsLayoutOnePath = path.join(getLayoutPath(), "mappingsLayoutOne.json");
+
+try {
+    const jsonData = fs.readFileSync(mappingsLayoutOnePath, 'utf8');
+    mappingsLayoutOne = JSON.parse(jsonData);
+    mappingsLayoutOne.forEach(convertMapping);
+} catch (error) {
+    console.error("Error reading or parsing mappingsLayoutOne.json:", error);
+    console.warn("Falling back to default mappings.");
+
+    // Fallback default mappings if parsing fails
+    mappingsLayoutOne = [
+        {
+            id: 'a',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num4] },
+        },
+        {
+            id: 'b',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num5] },
+        },
+        {
+            id: 'x',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num8] },
+        },
+        {
+            id: 'y',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num9] },
+        },
+        {
+            id: 'up',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.W] },
+        },
+        {
+            id: 'down',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.S] },
+        },
+        {
+            id: 'left',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.A] },
+        },
+        {
+            id: 'right',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.D] },
+        },
+        {
+            id: 'start',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Home] },
+        },
+        {
+            id: 'select',
+            source: 'button',
+            target: { type: 'mouseClick', mouseClick: Button.LEFT },
+        },
+        {
+          id:'accelerometer',
+          source:'motion',
+          target:{type:'mouseMotion', sensitivity : 25}
+        },
+        {
+            id: 'punch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num8]}
+        },
+        {
+            id: 'shoot',
+            source: 'voice',
+            target: {type: 'mouseClick', mouseClick: Button.LEFT}
+        },
+        {
+            id: 'punch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num8]}
+        },
+        {
+            id: 'shoot',
+            source: 'voice',
+            target: {type: 'mouseClick', mouseClick: Button.LEFT}
+        },
     ];
 }
 
 
 const maxConnections = 1;
 const connectedClients: string[] = [];
+
+let currentLayout = mappingsLayoutOne; // Default layout
+let currentLayoutName = 'layout-one'; // Default layout name
+const layouts = ['layout-one', 'layout-two'];
 let voiceEnabled = true;
 let rhino: Rhino | null = null;
 let motionEnabled = false;
@@ -251,7 +353,7 @@ app.on("ready", async () => {
             data.forEach(revertMapping);
             const jsonString = JSON.stringify(data, null, 2);
             // Write the JSON string to the file.
-            fs.writeFileSync(mappingsLayoutAPath, jsonString, 'utf8');
+            fs.writeFileSync(mappingsLayoutTwoPath, jsonString, 'utf8');
             console.log("Mappings saved successfully.");
         } catch (error) {
             console.error("Error saving mappings:", error);
