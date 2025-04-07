@@ -1,177 +1,281 @@
-import { app, BrowserWindow } from 'electron';
 import dotenv from 'dotenv';
 dotenv.config({ path: path.join(app.getAppPath(), '.env') });
 import path from 'path';
-// import { isDev } from './util.js';
-import { getPreloadPath } from './pathResolver.js';
+import fs from 'fs';
+import { app, BrowserWindow, ipcMain } from 'electron';
+import { getPreloadPath, getLayoutPath } from './pathResolver.js';
 import { serveControllerApp } from './server.js';
 import { ControllerLayout } from './controllers/ControllerLayout.js';
 import { KeyboardTarget, Mapping, MouseClickTarget, MouseMotionTarget, Coordinates, AnalogKeyboardTarget, Accelerometer } from '../types.js';
-import {Button, Key} from '@nut-tree-fork/nut-js'
+import { Button, Key } from '@nut-tree-fork/nut-js';
 import { ButtonInput } from './controller-inputs/ButtonInput.js';
-import { ipcMain } from 'electron';
-import { ipcHandle, isDev } from './util.js';
+import { ipcHandle, isDev, convertMapping, revertMapping } from './util.js';
 import { AnalogInput } from './controller-inputs/AnaogInput.js';
 import { MotionInput } from './controller-inputs/MotionControllerInput.js';
 import { VoiceCommandInput } from './controller-inputs/VoiceCommandInput.js';
 import { Rhino } from '@picovoice/rhino-node';
 
-// This should ideally be a constant and we should wrap it in a class or object and mutate it via those objects for data integrity
-const mappingsLayoutTwo: Mapping[] = [
-    {
-        id: 'a',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num4]},
-    },
-    {
-        id: 'b',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num5]},
-    },
-    {
-        id: 'x',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num8]},
-    },
-    {
-        id: 'y',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num9]},
-    },
-    {
-        id: 'up',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.W]},
-    },
-    {
-        id: 'down',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.S]},
-    },
-    {
-        id: 'left',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.A]},
-    },
-    {
-        id: 'right',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.D]},
-    },
-    {
-        id: 'start',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Home]},
-    },
-    {
-        id: 'select',
-        source: 'button',
-        target: {type: 'mouseClick', mouseClick: Button.LEFT},
-    },
-    {
-        id: 'right-analog',
-        source: 'analog',
-        target: {type: 'mouseMotion', sensitivity: 15}
-    },
-    {
-        id: 'left-analog',
-        source: 'analog',
-        target: {type: 'analogKeyboard',
-            positiveX: [Key.D], positiveY: [Key.W],
-            negativeX: [Key.A], negativeY: [Key.S]
-        }
-    },
-    {
-        id: 'accelerometer',
-        source: 'motion',
-        target: {type: 'mouseMotion', sensitivity: 25}
-    },
-    {
-        id: 'punch',
-        source: 'voice',
-        target: {type: 'keyboard', keybinding: [Key.Num8]}
-    },
-    {
-        id: 'shoot',
-        source: 'voice',
-        target: {type: 'mouseClick', mouseClick: Button.LEFT}
-    }
-];
+let mappingsLayoutTwo: Mapping[] = [];
 
-const mappingsLayoutOne: Mapping[] = [
-    {
-        id: 'a',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num4]},
-    },
-    {
-        id: 'b',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num5]},
-    },
-    {
-        id: 'x',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num8]},
-    },
-    {
-        id: 'y',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Num9]},
-    },
-    {
-        id: 'up',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.W]},
-    },
-    {
-        id: 'down',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.S]},
-    },
-    {
-        id: 'left',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.A]},
-    },
-    {
-        id: 'right',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.D]},
-    },
-    {
-        id: 'start',
-        source: 'button',
-        target: {type: 'keyboard', keybinding: [Key.Home]},
-    },
-    {
-        id: 'select',
-        source: 'button',
-        target: {type: 'mouseClick', mouseClick: Button.LEFT},
-    },
-    {
-        id: 'accelerometer',
-        source: 'motion',
-        target: {type: 'mouseMotion', sensitivity: 25}
-    },
-    {
-        id: 'punch',
-        source: 'voice',
-        target: {type: 'keyboard', keybinding: [Key.Num8]}
-    },
-    {
-        id: 'shoot',
-        source: 'voice',
-        target: {type: 'mouseClick', mouseClick: Button.LEFT}
-    }
-];
+// Determine the path to the JSON file.
+const mappingsLayoutTwoPath = path.join(getLayoutPath(), "mappingsLayoutTwo.json");
+
+// Synchronously read and parse the JSON file at startup
+try {
+    const jsonData = fs.readFileSync(mappingsLayoutTwoPath, 'utf8');
+    
+    // Attempt to parse JSON
+    mappingsLayoutTwo = JSON.parse(jsonData);
+    mappingsLayoutTwo.forEach(convertMapping);
+} catch (error) {
+    console.error("Error reading or parsing mappingsLayoutA.json:", error);
+    console.warn("Falling back to default mappings.");
+
+    // Fallback default mappings if parsing fails
+    mappingsLayoutTwo = [
+        {
+            id: 'a',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num4] },
+        },
+        {
+            id: 'b',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num5] },
+        },
+        {
+            id: 'x',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num8] },
+        },
+        {
+            id: 'y',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num9] },
+        },
+        {
+            id: 'up',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.W] },
+        },
+        {
+            id: 'down',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.S] },
+        },
+        {
+            id: 'left',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.A] },
+        },
+        {
+            id: 'right',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.D] },
+        },
+        {
+            id: 'start',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Home] },
+        },
+        {
+            id: 'select',
+            source: 'button',
+            target: { type: 'mouseClick', mouseClick: Button.LEFT },
+        },
+        {
+            id: 'right-analog',
+            source: 'analog',
+            target: { type: 'mouseMotion', sensitivity: 15 }
+        },
+        {
+            id: 'left-analog',
+            source: 'analog',
+            target: {
+                type: 'analogKeyboard',
+                positiveX: [Key.D],
+                positiveY: [Key.W],
+                negativeX: [Key.A],
+                negativeY: [Key.S]
+            }
+        },
+        {
+            id: 'accelerometer',
+            source: 'motion',
+            target: { type: 'mouseMotion', sensitivity: 25 }
+        },
+        {
+            id: 'punch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num8]}
+        },
+        {
+            id: 'shoot',
+            source: 'voice',
+            target: {type: 'mouseClick', mouseClick: Button.LEFT}
+        },
+        {
+            id: 'stop',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num1]}
+        },
+        {
+            id: 'move',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num2]}
+        },
+        {
+            id: 'block',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num3]}
+        },
+        {
+            id: 'kick',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num6]}
+        },
+        {
+            id: 'jump',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num7]}
+        },
+        {
+            id: 'crouch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num0]}
+        },
+    ];
+}
+
+//TODO: Repeat for the first layout (Ideally should be a single function called for each mapping)
+let mappingsLayoutOne: Mapping[] = [];
+const mappingsLayoutOnePath = path.join(getLayoutPath(), "mappingsLayoutOne.json");
+
+try {
+    const jsonData = fs.readFileSync(mappingsLayoutOnePath, 'utf8');
+    mappingsLayoutOne = JSON.parse(jsonData);
+    mappingsLayoutOne.forEach(convertMapping);
+} catch (error) {
+    console.error("Error reading or parsing mappingsLayoutOne.json:", error);
+    console.warn("Falling back to default mappings.");
+
+    // Fallback default mappings if parsing fails
+    mappingsLayoutOne = [
+        {
+            id: 'a',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num4] },
+        },
+        {
+            id: 'b',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num5] },
+        },
+        {
+            id: 'x',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num8] },
+        },
+        {
+            id: 'y',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Num9] },
+        },
+        {
+            id: 'up',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.W] },
+        },
+        {
+            id: 'down',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.S] },
+        },
+        {
+            id: 'left',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.A] },
+        },
+        {
+            id: 'right',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.D] },
+        },
+        {
+            id: 'start',
+            source: 'button',
+            target: { type: 'keyboard', keybinding: [Key.Home] },
+        },
+        {
+            id: 'select',
+            source: 'button',
+            target: { type: 'mouseClick', mouseClick: Button.LEFT },
+        },
+        {
+          id:'accelerometer',
+          source:'motion',
+          target:{type:'mouseMotion', sensitivity : 25}
+        },
+        {
+            id: 'punch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num8]}
+        },
+        {
+            id: 'shoot',
+            source: 'voice',
+            target: {type: 'mouseClick', mouseClick: Button.LEFT}
+        },
+        {
+            id: 'punch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num8]}
+        },
+        {
+            id: 'shoot',
+            source: 'voice',
+            target: {type: 'mouseClick', mouseClick: Button.LEFT}
+        },
+        {
+            id: 'stop',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num1]}
+        },
+        {
+            id: 'move',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num2]}
+        },
+        {
+            id: 'block',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num3]}
+        },
+        {
+            id: 'kick',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num6]}
+        },
+        {
+            id: 'jump',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num7]}
+        },
+        {
+            id: 'crouch',
+            source: 'voice',
+            target: {type: 'keyboard', keybinding: [Key.Num0]}
+        },
+    ];
+}
+
+
+const maxConnections = 1;
+const connectedClients: string[] = [];
 
 let currentLayout = mappingsLayoutOne; // Default layout
 let currentLayoutName = 'layout-one'; // Default layout name
 const layouts = ['layout-one', 'layout-two'];
-
-const maxConnections = 1;
-const connectedClients: string[] = [];
 let voiceEnabled = true;
 let rhino: Rhino | null = null;
 let motionEnabled = false;
@@ -300,6 +404,24 @@ app.on("ready", async () => {
     ipcMain.on('setVoiceEnabled', (_event, data) => {
         voiceEnabled = data;
         console.log("Voice enabled: ", voiceEnabled);
+    });
+
+    ipcMain.on('save-controller-mappings', async (_event, data) => {
+        console.log("Sent Mappings:", data);
+        try {
+            // Convert the data to a formatted JSON string.
+            data.forEach(revertMapping);
+            const jsonString = JSON.stringify(data, null, 2);
+            // Write the JSON string to the file.
+            if (currentLayoutName === 'layout-one') {
+                fs.writeFileSync(mappingsLayoutOnePath, jsonString, 'utf8');
+            } else {
+                fs.writeFileSync(mappingsLayoutTwoPath, jsonString, 'utf8');
+            }
+            console.log("Mappings saved successfully.");
+        } catch (error) {
+            console.error("Error saving mappings:", error);
+        }
     });
 
     if (server) {

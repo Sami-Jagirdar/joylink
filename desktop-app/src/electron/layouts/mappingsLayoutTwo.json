@@ -1,0 +1,212 @@
+[
+  {
+    "id": "a",
+    "source": "button",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num4"
+      ]
+    }
+  },
+  {
+    "id": "b",
+    "source": "button",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num5"
+      ]
+    }
+  },
+  {
+    "id": "x",
+    "source": "button",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num8"
+      ]
+    }
+  },
+  {
+    "id": "y",
+    "source": "button",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num9"
+      ]
+    }
+  },
+  {
+    "id": "up",
+    "source": "button",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.W"
+      ]
+    }
+  },
+  {
+    "id": "down",
+    "source": "button",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.S"
+      ]
+    }
+  },
+  {
+    "id": "left",
+    "source": "button",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.LeftShift",
+        "Key.A"
+      ]
+    }
+  },
+  {
+    "id": "right",
+    "source": "button",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.D"
+      ]
+    }
+  },
+  {
+    "id": "start",
+    "source": "button",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Home"
+      ]
+    }
+  },
+  {
+    "id": "select",
+    "source": "button",
+    "target": {
+      "type": "mouseClick",
+      "mouseClick": "Button.LEFT"
+    }
+  },
+  {
+    "id": "right-analog",
+    "source": "analog",
+    "target": {
+      "type": "mouseMotion",
+      "sensitivity": 30
+    }
+  },
+  {
+    "id": "left-analog",
+    "source": "analog",
+    "target": {
+      "type": "analogKeyboard",
+      "positiveX": [
+        "Key.D"
+      ],
+      "positiveY": [
+        "Key.W"
+      ],
+      "negativeX": [
+        "Key.A"
+      ],
+      "negativeY": [
+        "Key.S"
+      ]
+    }
+  },
+  {
+    "id": "accelerometer",
+    "source": "motion",
+    "target": {
+      "type": "mouseMotion",
+      "sensitivity": 25
+    }
+  },
+  {
+    "id": "punch",
+    "source": "voice",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num8"
+      ]
+    }
+  },
+  {
+    "id": "shoot",
+    "source": "voice",
+    "target": {
+      "type": "mouseClick",
+      "mouseClick": "Button.LEFT"
+    }
+  },
+  {
+    "id": "stop",
+    "source": "voice",
+    "target": {
+      "type": "mouseClick",
+      "mouseClick": "Button.LEFT"
+    }
+  },
+  {
+    "id": "move",
+    "source": "voice",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num2"
+      ]
+    }
+  },
+  {
+    "id": "block",
+    "source": "voice",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num3"
+      ]
+    }
+  },
+  {
+    "id": "kick",
+    "source": "voice",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num6"
+      ]
+    }
+  },
+  {
+    "id": "jump",
+    "source": "voice",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num7"
+      ]
+    }
+  },
+  {
+    "id": "crouch",
+    "source": "voice",
+    "target": {
+      "type": "keyboard",
+      "keybinding": [
+        "Key.Num0"
+      ]
+    }
+  }
+]

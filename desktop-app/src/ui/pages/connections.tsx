@@ -47,7 +47,7 @@ function Connections() {
 
     // Send manual disconnect request via Electron and sockets
     window.electron.sendManualDisconnect(deviceName);
-};
+  };
 
   return (
 

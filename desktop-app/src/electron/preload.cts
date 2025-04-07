@@ -33,6 +33,10 @@ contextBridge.exposeInMainWorld("electron", {
         ipcRenderer.send('set-controller-mappings', data);
     },
 
+    saveControllerMappings: (data: Mapping[]) => {
+        ipcRenderer.send('save-controller-mappings', data);
+    },
+
     getLayouts: async () => {
         return await ipcInvoke('getLayouts');
     },

@@ -16,6 +16,7 @@ declare global {
             setMotionEnabled: (enabled: boolean) => void;
             getVoiceEnabled: () => Promise<boolean>;
             setVoiceEnabled: (enabled: boolean) => void;
+            saveControllerMappings: (mappings: Mapping[]) => void;
             // Define other methods you expose via contextBridge here
         };
     }

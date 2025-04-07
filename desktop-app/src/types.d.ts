@@ -70,5 +70,6 @@ interface Window {
         setMotionEnabled: (data: boolean) => void;
         getVoiceEnabled: () => Promise<boolean>;
         setVoiceEnabled: (data: boolean) => void;
+        saveControllerMappings: (mappings: Mapping[]) => void;
     };
 }
