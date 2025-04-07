@@ -52,6 +52,7 @@ function convertButtonString(buttonString: string): number {
 }
 
 // Function to process each mapping.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertMapping(mapping: any): void {
     // For "keyboard" type, convert the keybinding array.
     if (mapping.target.type === "keyboard" && mapping.target.keybinding) {
@@ -99,6 +100,7 @@ function getButtonString(buttonCode: number): string {
 }
   
   // Function that “reverts” the mapping conversion for each mapping object.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function revertMapping(mapping: any) {
     // For "keyboard" type mappings, convert the keybinding array numbers to strings.
     if (mapping.target.type === "keyboard" && mapping.target.keybinding) {
