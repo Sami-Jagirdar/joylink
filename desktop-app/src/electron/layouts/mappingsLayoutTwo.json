@@ -65,6 +65,7 @@
     "target": {
       "type": "keyboard",
       "keybinding": [
+        "Key.LeftShift",
         "Key.A"
       ]
     }

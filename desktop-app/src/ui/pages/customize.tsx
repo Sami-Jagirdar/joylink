@@ -214,35 +214,35 @@ function Customize() {
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end justify-items-end mr-5">
+            <div className="flex justify-between items-center mr-5">
                 <button
-                    className="px-8 py-4 mr-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
-                    onClick={() => navigate('/choose-layout')}
+                    className="px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
+                    onClick={() => handleSaveControllerMappings()}
                 >
-                    Back
+                    Save Layout
                 </button>
-                <div className="flex mt-4">
+                <div className="flex space-x-4">
                     <button
                         className="px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
+                        onClick={() => navigate('/choose-layout')}
+                    >
+                        Back
+                    </button>
+                    <button
+                        className="px-8 py-4 bg-red-700 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
                         onClick={() => navigate('/connections')}
                     >
                         Play
                     </button>
-                    <button
-                        className="ml-auto mr-4 px-8 py-4 bg-neutral-900 text-white text-xl font-semibold rounded-lg hover:border-red-700 hover:border shadow-lg transform hover:scale-105 cursor-pointer"
-                        onClick={() => handleSaveControllerMappings()}
-                    >
-                        Save Layout
-                    </button>
                 </div>
-                <CustomizeModal
-                    isOpen={isModalOpen}
-                    onClose={closeModal}
-                    mappings={mappings}
-                    selectedMapping={selectedMapping}
-                    onSave={handleMappingSave}
-                />
             </div>
+            <CustomizeModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                mappings={mappings}
+                selectedMapping={selectedMapping}
+                onSave={handleMappingSave}
+            />
         </div>
     );
 }

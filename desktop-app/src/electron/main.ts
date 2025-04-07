@@ -353,7 +353,11 @@ app.on("ready", async () => {
             data.forEach(revertMapping);
             const jsonString = JSON.stringify(data, null, 2);
             // Write the JSON string to the file.
-            fs.writeFileSync(mappingsLayoutTwoPath, jsonString, 'utf8');
+            if (currentLayoutName === 'layout-one') {
+                fs.writeFileSync(mappingsLayoutOnePath, jsonString, 'utf8');
+            } else {
+                fs.writeFileSync(mappingsLayoutTwoPath, jsonString, 'utf8');
+            }
             console.log("Mappings saved successfully.");
         } catch (error) {
             console.error("Error saving mappings:", error);
