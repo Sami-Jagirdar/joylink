@@ -227,16 +227,6 @@ try {
             target: {type: 'mouseClick', mouseClick: Button.LEFT}
         },
         {
-            id: 'punch',
-            source: 'voice',
-            target: {type: 'keyboard', keybinding: [Key.Num8]}
-        },
-        {
-            id: 'shoot',
-            source: 'voice',
-            target: {type: 'mouseClick', mouseClick: Button.LEFT}
-        },
-        {
             id: 'stop',
             source: 'voice',
             target: {type: 'keyboard', keybinding: [Key.Num1]}
@@ -280,7 +270,7 @@ let voiceEnabled = true;
 let rhino: Rhino | null = null;
 let motionEnabled = false;
 
-const initializeController = async (controller: ControllerLayout, mappings: Mapping[]) => {
+export const initializeController = async (controller: ControllerLayout, mappings: Mapping[]) => {
     controller.clearInputs();
     for (const mapping of mappings) {
         if (mapping.source === 'button') {
@@ -325,6 +315,18 @@ const initializeController = async (controller: ControllerLayout, mappings: Mapp
         }
     }
 }
+
+// USED ONLY FOR MAKING TESTS
+export const setLayouts = (layoutOne: any, layoutTwo: any) => {
+    mappingsLayoutOne = layoutOne;
+    mappingsLayoutTwo = layoutTwo;
+};
+
+export const setCurrentLayout = (layout: any) => {
+    currentLayout = layout;
+};
+
+export const getCurrentLayout = () => currentLayout;
 
 app.on("ready", async () => {
     const mainWindow = new BrowserWindow({
@@ -390,11 +392,11 @@ app.on("ready", async () => {
         console.log("Setting layout to: ", data);
         currentLayoutName = data;
         if (data === 'layout-one') {
-            currentLayout = mappingsLayoutOne;
+            setCurrentLayout(mappingsLayoutOne);
         } else {
-            currentLayout = mappingsLayoutTwo;
+            setCurrentLayout(mappingsLayoutTwo);
         }
-    })
+    });
 
     ipcMain.on('setMotionEnabled', (_event, data) => {
         motionEnabled = data;
