@@ -11,6 +11,7 @@ function Connections() {
 
   const [url, setUrl] = useState<string>("No Network Connection");
   useEffect(() => {
+    // FR2: Generate.Connection.Methods - Fetch Client URL
     const fetchUrl = async () => {
       const url = await window.electron.getControllerUrl();
       if (url) {
@@ -32,6 +33,7 @@ function Connections() {
   }, []);
 
   useEffect(() => {
+    // FR2: Generate.Connection.Methods - QR Code 
     if (url !== "No Network Connection" && qrCodeRef.current) {
       QRCode.toCanvas(qrCodeRef.current, url, function (error) {
         if (error) {
@@ -41,7 +43,7 @@ function Connections() {
     }
   }, [url]);
 
-
+  //FR7- Client.Disconnect - Manually disconnect handling
   const handleDisconnect = (deviceName: string) => {
     console.log(`Disconnecting ${deviceName}`);
 
@@ -54,6 +56,7 @@ function Connections() {
       <div className="flex flex-col items-center mx-auto pt-8 px-4 min-h-screen min-w-screen">
         <h1 className="text-3xl font-bold mb-8 text-center">Scan URL to Play</h1>
     
+        {/* FR2: Generate.Connection.Methods - Display Client URL  */}
         <p className="mb-3 text-white-700 break-all">{url}</p>
         
         <canvas ref={qrCodeRef} id="qrcode" className="mb-8"></canvas>
@@ -64,6 +67,8 @@ function Connections() {
           {devices.length === 0 ? (
             <p className="text-center text-gray-400">No devices connected.</p>
           ) : (
+
+            //FR7- Client.Disconnect - Manual disconnect of currently connected client button
             <ul className="space-y-3">
               {devices.map((device, index) => (
                 <li key={index} className="flex justify-between items-center p-2 bg-zinc-900 rounded-md border border-green-500">

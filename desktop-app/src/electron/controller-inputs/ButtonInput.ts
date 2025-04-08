@@ -4,6 +4,7 @@ import {keyboard, mouse} from "@nut-tree-fork/nut-js";
 keyboard.config.autoDelayMs = 0;
 mouse.config.autoDelayMs = 0;
 
+// FR14- Process.User.Actions.Buttons
 export class ButtonInput extends ControllerInput {
     constructor(id: string, mappingTarget: KeyboardTarget | MouseClickTarget) {
         super(id, mappingTarget)

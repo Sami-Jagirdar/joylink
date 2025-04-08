@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld("electron", {
         });
     },
 
+    // FR2: Generate.Connection.Methods - Client URL
     getControllerUrl: async () => {
         return await ipcInvoke('getControllerUrl');
     },

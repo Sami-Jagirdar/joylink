@@ -32,6 +32,7 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
+// FR3 - Establish.Real.Time.Communication - Client side socket communication
 export default function VirtualGamepad({ socket, connected, maxConnections, manuallyDisconnected, voiceEnabled, motionEnabled }: LayoutOneProps) {
   const [isLandscape, setIsLandscape] = useState(false);
   const processorEngineRef = useRef<any>(null); // needs to be any since the type is not defined in the library

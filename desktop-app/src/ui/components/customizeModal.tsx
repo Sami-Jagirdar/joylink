@@ -6,6 +6,7 @@ import {Key, Button} from "@nut-tree-fork/nut-js";
 import MouseLayout from './mouse';
 import SensitivitySlider from './sensitivitySlider';
 
+// FR8: Map.Buttons.To.Peripherals, FR9: Map.AnalogStick.To.Peripherals , FR10: Map.VoiceCommands.To.Peripherals, FR11: Map.MotionSensorData.To.Peripherals - Individual customization of each button, analog stick, motion detection, and voice command.
 interface CustomizeModalProps {
   isOpen: boolean;
   onClose: () => void;

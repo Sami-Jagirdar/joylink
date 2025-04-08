@@ -34,6 +34,7 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
+// FR3 - Establish.Real.Time.Communication - Client side socket communication
 export default function LayoutTwo({ socket, connected, maxConnections, manuallyDisconnected, voiceEnabled, motionEnabled }: LayoutTwoProps) {
   const [isLandscape, setIsLandscape] = useState(false);
   const processorEngineRef = useRef<any>(null); // Use a ref to store the processor engine
