@@ -4,7 +4,7 @@ import {keyboard, mouse, Point} from "@nut-tree-fork/nut-js"
 mouse.config.autoDelayMs = 0;
 mouse.config.autoDelayMs = 0;
 
-
+// FR17- Process.Motion.Input
 export class MotionInput extends ControllerInput {
     private g = 9.81;
     private halfG = this.g/2;

@@ -14,6 +14,8 @@ export async function serveControllerApp(): Promise<[Server, string]> {
     const certificate = fs.readFileSync(getCertPath() + "/cert.pem")
     const credentials = { key: privateKey, cert: certificate };
 
+    // FR1 Host.Controller.Interface
+    // FR3 - Establish.Real.Time.Communication - Server side socket communication
     return new Promise((resolve, reject) => {
         // Prepare the controller app to serve via http
         const app = express();

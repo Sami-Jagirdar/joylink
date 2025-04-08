@@ -45,6 +45,7 @@ function App() {
     };
   }, []);
 
+  // FR3 - Establish.Real.Time.Communication - Client side socket communication
   useEffect(() => {
     if (socket) {
 
@@ -90,6 +91,7 @@ function App() {
       document.head.appendChild(meta);
     }
     return (
+      // FR12 - Choose.Between.Two.Layouts
       <>
         {layout.layout === 'layout-one' ? (
           socket ? 
