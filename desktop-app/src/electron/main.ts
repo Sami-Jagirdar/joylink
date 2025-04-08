@@ -426,7 +426,8 @@ app.on("ready", async () => {
 
     if (server) {
         server.on('connection', async (socket) => {
-            // Check if maximum connections reached
+            // Send layout to client and check if maximum connections reached
+            socket.emit('layout', {layout: currentLayoutName, voiceEnabled: voiceEnabled, motionEnabled: motionEnabled});
             if (connectedClients.length >= maxConnections) {
                 console.log('Maximum connections reached, rejecting new connection.');
                 socket.emit('max-connections-reached');
@@ -438,10 +439,6 @@ app.on("ready", async () => {
 
             // Request client to send device info
             socket.emit('request-device-info');
-
-            // send layout to client
-            console.log(voiceEnabled, motionEnabled);
-            socket.emit('layout', {layout: currentLayoutName, voiceEnabled: voiceEnabled, motionEnabled: motionEnabled});
 
             let clientDeviceName: string | null = null;
             socket.on('device-info', async (data: { deviceName: string }) => {
