@@ -53,8 +53,7 @@
   CONTEXT_FILE_PATH=contexts/<Your_context_filename>
   ```
   ### Network
-  Make sure that the phone and PC are connected to the same wifi network. This may not work for large-scale enterprise networks such as UWS. In such
-  cases, a hotspot network can be created from the phone or a 3rd device. Then the PC and (possibly) the phone can be connected to this hotspot.
+  Make sure that the phone and PC are connected to the same wifi network. This may not work for large-scale enterprise networks such as UWS. In such cases, a hotspot network can be created from the phone or a 3rd device. Then the PC and (possibly) the phone can be connected to this hotspot.
 
 
   You are now ready to use JoyLink!
