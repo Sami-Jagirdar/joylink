@@ -317,12 +317,12 @@ export const initializeController = async (controller: ControllerLayout, mapping
 }
 
 // USED ONLY FOR MAKING TESTS
-export const setLayouts = (layoutOne: any, layoutTwo: any) => {
+export const setLayouts = (layoutOne: Mapping[], layoutTwo: Mapping[]) => {
     mappingsLayoutOne = layoutOne;
     mappingsLayoutTwo = layoutTwo;
 };
 
-export const setCurrentLayout = (layout: any) => {
+export const setCurrentLayout = (layout: Mapping[]) => {
     currentLayout = layout;
 };
 
@@ -569,12 +569,12 @@ app.on("ready", async () => {
         });
 
         // Handle the 'error' event from the spawn itself (e.g., if 'node' or the script isn't found)
-        server.once('error', (error) => {
+        server.on('error', (error) => {
             console.error(`Failed to start server process: ${error.message}`);
         });
 
         // Handle when the server process exits
-        server.once('exit', (code, signal) => {
+        server.on('exit', (code, signal) => {
             if (code !== 0) {
                 console.log(`Server process exited with code ${code}`);
             } else {

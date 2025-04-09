@@ -21,6 +21,9 @@ export class AnalogInput extends ControllerInput {
         super(id, mappingTarget)
     }
 
+    getIsMoving(): boolean {
+        return this.isMoving;
+    }
 
     async handleInput(position: Coordinates): Promise<void> {
         // console.log(position);
@@ -46,6 +49,12 @@ export class AnalogInput extends ControllerInput {
             this.handleKeyboardInput();
         }
 
+    }
+
+    // For testing purposes only
+    setAnalogInterval(): void {
+        this.moveInterval = setInterval(async () => {
+            console.log("testing purpose");}, 1000);
     }
 
     async startMotion(): Promise<void> {

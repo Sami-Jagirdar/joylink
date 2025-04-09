@@ -9,7 +9,7 @@ export class MotionInput extends ControllerInput {
     private g = 9.81;
     private halfG = this.g/2;
     private negativeHalfG = this.g/-2
-    private topOfPhoneIsOnLeft = true;
+    topOfPhoneIsOnLeft = true;
     private tiltFix = 60 * (Math.PI/180); //Set tilt angle where no movement is made to 60 degrees
     private mousePosition = new Point(0,0);
     private deadAngleSteerKeyboard = 8 * (Math.PI/180); //Middle 10x2 degrees are dead
@@ -108,7 +108,7 @@ export class MotionInput extends ControllerInput {
 
     }
 
-    private clipInRange(val: number, low: number, high: number): number{
+    clipInRange(val: number, low: number, high: number): number{
         return Math.min(high, Math.max(low, val))
     }
 
