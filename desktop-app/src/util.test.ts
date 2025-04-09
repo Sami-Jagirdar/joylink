@@ -6,7 +6,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
     test: {
-        include: ['src/main.ts', 'src/util.ts'],
+        include: ['src/**/*.{js,ts,jsx,tsx}'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'html'],

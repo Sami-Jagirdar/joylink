@@ -3,10 +3,20 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { initializeController } from './electron/main.ts';
 import { defineConfig } from 'vitest/config';
+import { describe, it, expect, vi } from 'vitest';
+import { getPreloadPath, getUIPath, getAssetPath, getControllerPath, getCertPath, getLayoutPath } from './electron/pathResolver';
+import { isDev } from './electron/util';
+import { keyboard, mouse, Point } from "@nut-tree-fork/nut-js";
+import { AnalogInput } from "./electron/controller-inputs/AnaogInput.ts";
+import { ButtonInput } from "./electron/controller-inputs/ButtonInput";
+import { MotionInput } from "./electron/controller-inputs/MotionControllerInput";
+import { VoiceCommandInput } from "./electron/controller-inputs/VoiceCommandInput";
+import { KeyboardTarget, MouseClickTarget } from "./types";
+
 
 export default defineConfig({
     test: {
-        include: ['src/main.ts', 'src/util.ts'],
+    include: ['src/**/*.{js,ts,jsx,tsx}'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'html'],
