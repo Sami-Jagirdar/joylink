@@ -8,6 +8,7 @@ function Connections() {
   const navigate = useNavigate();
   const [devices, setDevices] = useState<string[]>([]);
   const qrCodeRef = useRef<HTMLCanvasElement>(null);
+  const [selectedLayout, setSelectedLayout] = useState<string>("");
 
   const [url, setUrl] = useState<string>("No Network Connection");
   useEffect(() => {
@@ -29,6 +30,17 @@ function Connections() {
       console.log("Updated Device List:", deviceNames);
       setDevices(deviceNames);
     });
+
+    const fetchCurrentLayout = async () => {
+      const currentLayout = await window.electron.getCurrentLayout();
+      if (currentLayout) {
+          setSelectedLayout(currentLayout);
+      } else {
+          setSelectedLayout("");
+      }
+    };
+
+    fetchCurrentLayout();
 
   }, []);
 
@@ -72,7 +84,8 @@ function Connections() {
             <ul className="space-y-3">
               {devices.map((device, index) => (
                 <li key={index} className="flex justify-between items-center p-2 bg-zinc-900 rounded-md border border-green-500">
-                  <span className="text-md font-medium p-2">{device}</span>
+                  <span className="text-md font-medium p-2">{device} |</span>
+                  <span className="text-md font-medium">{selectedLayout}</span>
                   <button
                     className="text-green-100 px-4 py-2 rounded-md"
                     onClick={() => handleDisconnect(device)}
