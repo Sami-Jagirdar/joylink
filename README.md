@@ -26,7 +26,7 @@
   -  You can find your IPv4 address by running `ipconfig` in Windows cmd or `ifconfig` in a Mac/Linux terminal
   -  -- Note: Windows users may have to install `choco` to install mkcert and run this command or directly install the mkcert package from their website and add it to your path. (Please see the relevant documentation)
 
-    ### PicoVoice (Voice Recognition) Setup
+     ### PicoVoice (Voice Recognition) Setup
   - Create a free picovoice account and train the Rhino Model. (This is required, because the free version only limits its usage to one user, so we developers can't share our key or model to the public).
   (https://www.youtube.com/watch?v=IPC_pCT9r1o&t=1s&ab_channel=Picovoice)
   - Choose the following intent and slots (don't modify) -->
