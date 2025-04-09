@@ -1,10 +1,18 @@
 import { test, expect, vi } from 'vitest';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import fs from 'fs';
-import { serveControllerApp } from './electron/server.ts';
-import { ControllerLayout } from './electron/controllers/ControllerLayout.js';
 import { initializeController } from './electron/main.ts';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+    test: {
+        include: ['src/main.ts', 'src/util.ts'],
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'html'],
+      },
+    },
+});
 
 vi.mock('electron', () => ({
     ipcMain: {

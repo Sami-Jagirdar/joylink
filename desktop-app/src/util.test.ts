@@ -2,6 +2,17 @@ import { describe, it, expect, vi } from 'vitest';
 import { isDev, findPrivateIp, ipcHandle, convertMapping, revertMapping } from './electron/util';
 import { ipcMain } from 'electron';
 import { Key, Button } from '@nut-tree-fork/nut-js';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+    test: {
+        include: ['src/main.ts', 'src/util.ts'],
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'html'],
+      },
+    },
+});
 
 vi.mock('electron', () => {
     return {
