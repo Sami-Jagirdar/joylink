@@ -3,7 +3,7 @@
   A virtual smartphone controller for the PC with preset layouts that maps controller inputs to keyboard and mouse inputs
 
   There are 2 main apps: desktop-app and controller-app
-  The desktop-app is where most of our code lies and where most commands will be ran. 
+  The desktop-app is where most of our code lies and where most commands will be ran.
 
   # Usage Instructions
   ## Preface
@@ -41,17 +41,21 @@
       - punch
       - crouch
       - shoot
-  - Choose the model option for desktop (Windows, MacOS, or Linux depending on your OS) 
+  - Choose the model option for desktop (Windows, MacOS, or Linux depending on your OS)
   - You should now have your own access key and a zip folder with a `.rhn` file. This is your contexts file for PicoVoice to recognize.
   - cd back into the `desktop-app`
   - create a `contexts` directory (`mkdir contexts`)
   - copy and paste your contexts file into this directory (Has the extension `.rhn` provided you trained for Windows)
   - in your `desktop-app` directory, create a `.env` file and add the following:
-  ``` 
+  ```
   LOCAL_PORT=7777
   PICOVOICE_KEY=<Your_Access_Key>
   CONTEXT_FILE_PATH=contexts/<Your_context_filename>
   ```
+  ### Network
+  Make sure that the phone and PC are connected to the same wifi network. This may not work for large-scale enterprise networks such as UWS. In such
+  cases, a hotspot network can be created from the phone or a 3rd device. Then the PC and (possibly) the phone can be connected to this hotspot.
+
 
   You are now ready to use JoyLink!
 
@@ -62,12 +66,12 @@
   # User Guide
   ## 1. Start Page
   - Once the app Launches, you will be greated to the Start Page. Simply click on Start to continue
-  
+
   ## 2. Choose Layout Page
   - The next page will prompt you to choose between 2 layouts.
   - Layout one only has buttons that are large
   - Layout two has the same buttons but smaller and adds two analog sticks at the bottom
-  - You can choose to enable or disable Voice Commands and/or motion controls. These settings will apply to either of the chosen layout. 
+  - You can choose to enable or disable Voice Commands and/or motion controls. These settings will apply to either of the chosen layout.
   - Click on the Customize button to move forward
 
   ## 3. Customize Page
@@ -84,9 +88,9 @@
 
   ## 4. Connections Page
   - Scan the QR code with your phone or enter the displayed URL in a browser to access the controller interface
-  - Note, on your first visit, you may have to continue past the warning that the website is not secure. This warning comes because the SSL certificate was self generated. 
+  - Note, on your first visit, you may have to continue past the warning that the website is not secure. This warning comes because the SSL certificate was self generated.
   - You will now be able to press buttons, move the analog stick, tilt your phone (if motion controls enabled), speak voice commands (if voice commands enabled) to execute the corresponding keyboard / mouse actions!
-  - Note: For voice commands: You will need to preface each command with the hotword - 'JoyLink'. For example, if the command is 'punch', you will need to say 'Joylink punch' for the command to be recognized. 
+  - Note: For voice commands: You will need to preface each command with the hotword - 'JoyLink'. For example, if the command is 'punch', you will need to say 'Joylink punch' for the command to be recognized.
   - No other device will be able to connect while one device is already connected
   - The connected device can be disconnected by simply closing the browser tab or clicking the Disconnect button on the connections page
   - Enjoy!
