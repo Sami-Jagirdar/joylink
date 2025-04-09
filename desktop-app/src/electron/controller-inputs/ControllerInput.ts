@@ -39,6 +39,10 @@ export abstract class ControllerInput {
         }
     }
 
+    getSensitivity(): number {
+        return this.sensitivity;
+    }
+
     abstract handleInput(data?: unknown): Promise<void>;
 
 }

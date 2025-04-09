@@ -33,7 +33,7 @@ export function ipcHandle<Key extends keyof EventPayloadMapping & string>(
 }
 
 // Conversion functions for enum strings.
-function convertKeyString(keyString: string): number {
+export function convertKeyString(keyString: string): number {
     const parts = keyString.split('.');
     if (parts.length !== 2 || parts[0] !== 'Key') {
       throw new Error('Invalid key format: ' + keyString);
@@ -42,7 +42,7 @@ function convertKeyString(keyString: string): number {
     return Key[keyName as keyof typeof Key];
 }
   
-function convertButtonString(buttonString: string): number {
+export function convertButtonString(buttonString: string): number {
     const parts = buttonString.split('.');
     if (parts.length !== 2 || parts[0] !== 'Button') {
         throw new Error('Invalid button format: ' + buttonString);
@@ -75,7 +75,7 @@ export function convertMapping(mapping: any): void {
 }
 
 // Helper function to convert a key code back into its enum string (e.g., 33 -> "Key.Num4")
-function getKeyString(keyCode: number): string {
+export function getKeyString(keyCode: number): string {
     // Cast the Key enum as a record to iterate its keys.
     const keyEnum = Key as unknown as Record<string, number>;
     const keyNames = Object.keys(keyEnum).filter((name: string) => typeof keyEnum[name] === 'number');
@@ -88,7 +88,7 @@ function getKeyString(keyCode: number): string {
 }
 
 // Helper function to convert a button code back into its enum string (e.g., 0 -> "Button.LEFT")
-function getButtonString(buttonCode: number): string {
+export function getButtonString(buttonCode: number): string {
     const buttonEnum = Button as unknown as Record<string, number>;
     const buttonNames = Object.keys(buttonEnum).filter((name: string) => typeof buttonEnum[name] === 'number');
     for (const name of buttonNames) {

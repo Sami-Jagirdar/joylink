@@ -14,8 +14,6 @@ export class VoiceCommandInput extends ControllerInput {
             await this.handleKeyboardInput();
         } else if (this.mappingTarget.type === "mouseClick") {
             await this.handleMouseInput();
-        } else {
-            throw new Error("Invalid mapping target type.");
         }
     }
 

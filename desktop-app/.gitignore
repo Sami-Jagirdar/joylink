@@ -21,6 +21,7 @@ certs
 .env
 .env.*
 *.env
+coverage
 
 # Editor directories and files
 .vscode/*
@@ -32,3 +33,9 @@ certs
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
