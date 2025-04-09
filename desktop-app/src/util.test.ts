@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { isDev, findPrivateIp, ipcHandle, convertMapping, revertMapping } from './electron/util';
+import { isDev, findPrivateIp, ipcHandle, convertMapping, revertMapping, convertButtonString, convertKeyString, getKeyString, getButtonString } from './electron/util';
 import { ipcMain } from 'electron';
 import { Key, Button } from '@nut-tree-fork/nut-js';
 import { defineConfig } from 'vitest/config';
@@ -137,4 +137,30 @@ describe('revertMapping', () => {
         revertMapping(mapping);
         expect(JSON.stringify(mapping)).toBe(originalMapping);
     });
+
+    it ("should throw error if keyString length is not 2", () => {
+        const keyString = "Key.A.B";
+        expect(() => convertKeyString(keyString)).toThrowError();
+
+    });
+
+    it ("should throw error if keyString length is not 2", () => {
+        const keyString = "Key.A.B";
+        expect(() => convertButtonString(keyString)).toThrowError();
+
+    });
+
+    it ("should return invalid keystring correctly", () => {
+        const keyCode = 9999;
+        const keyString = getKeyString(keyCode);
+        expect(keyString).toBe("9999");
+    });
+
+    it ("should return invalid buttonstring correctly", () => {
+        const buttonCode = 9999;
+        const buttonString = getButtonString(buttonCode);
+        expect(buttonString).toBe("9999");
+    });
+
+
 });
