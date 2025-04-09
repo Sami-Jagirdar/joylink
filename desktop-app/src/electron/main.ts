@@ -14,6 +14,7 @@ import { AnalogInput } from './controller-inputs/AnaogInput.js';
 import { MotionInput } from './controller-inputs/MotionControllerInput.js';
 import { VoiceCommandInput } from './controller-inputs/VoiceCommandInput.js';
 import { Rhino } from '@picovoice/rhino-node';
+import { emitWarning } from 'process';
 
 let mappingsLayoutTwo: Mapping[] = [];
 
@@ -326,6 +327,7 @@ const initializeController = async (controller: ControllerLayout, mappings: Mapp
     }
 }
 
+// FR3 - Establish.Real.Time.Communication - Server side socket communication
 app.on("ready", async () => {
     const mainWindow = new BrowserWindow({
         webPreferences: {
@@ -344,6 +346,7 @@ app.on("ready", async () => {
         mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"))
     }
 
+    // FR2: Generate.Connection.Methods - Set Client URL
     const serverUrl = await serveControllerApp();
     const [server, url] = serverUrl
     const controllerLayout = new ControllerLayout("LayoutA");
@@ -356,7 +359,8 @@ app.on("ready", async () => {
         mainWindow.setTitle('JoyLink');
         mainWindow.setIcon(path.join(app.getAppPath(), 'src', 'assets', 'icon.png'));
       });
-
+    
+    // FR2: Generate.Connection.Methods - Fetch Client URL
     ipcHandle('getControllerUrl', () => {
         return url;
     });
@@ -381,6 +385,7 @@ app.on("ready", async () => {
         return voiceEnabled;
     });
 
+    // FR4- Track.Current.Client - Keep tracks of the current layout assigned to the connected user.
     ipcMain.on('set-controller-mappings',  async (_event, data) => {
         currentLayout = data;
         await initializeController(controllerLayout, data);
@@ -406,6 +411,7 @@ app.on("ready", async () => {
         console.log("Voice enabled: ", voiceEnabled);
     });
 
+    // FR13 - Store.Default.Mapping - Store the default mappings that a user has saved on the program so that when they open the program again, the mappings will be the same.
     ipcMain.on('save-controller-mappings', async (_event, data) => {
         console.log("Sent Mappings:", data);
         try {
@@ -426,7 +432,9 @@ app.on("ready", async () => {
 
     if (server) {
         server.on('connection', async (socket) => {
-            // Check if maximum connections reached
+            // Send layout to client and check if maximum connections reached
+            socket.emit('layout', {layout: currentLayoutName, voiceEnabled: voiceEnabled, motionEnabled: motionEnabled});
+            // FR5- Reject.New.Connections - Prevent new connections if a client is already connected
             if (connectedClients.length >= maxConnections) {
                 console.log('Maximum connections reached, rejecting new connection.');
                 socket.emit('max-connections-reached');
@@ -438,11 +446,8 @@ app.on("ready", async () => {
 
             // Request client to send device info
             socket.emit('request-device-info');
-
-            // send layout to client
-            console.log(voiceEnabled, motionEnabled);
-            socket.emit('layout', {layout: currentLayoutName, voiceEnabled: voiceEnabled, motionEnabled: motionEnabled});
-
+            
+            // FR4- Track.Current.Client - Keep track of the current client connected to the program
             let clientDeviceName: string | null = null;
             socket.on('device-info', async (data: { deviceName: string }) => {
                 console.log("Device Type: ", data.deviceName);
@@ -460,10 +465,12 @@ app.on("ready", async () => {
                 const accessKey = process.env.PICOVOICE_KEY;
                 const relativePath = process.env.CONTEXT_FILE_PATH;
                 if (!accessKey || !relativePath) {
-                    throw new Error("Picovoice access key or context path is not defined in the environment variables.");
+                    emitWarning("Picovoice access key or context path is not defined in the environment variables.");
+                    rhino= null;
+                } else {
+                    const contextPath = path.resolve(process.cwd(), relativePath);
+                    rhino = new Rhino(accessKey, contextPath);
                 }
-                const contextPath = path.resolve(process.cwd(), relativePath);
-                rhino = new Rhino(accessKey, contextPath);
             }
             
 
@@ -506,6 +513,7 @@ app.on("ready", async () => {
                 }
             })
 
+            //FR7- Client.Disconnect - Manually disconnect signal sent to client side
             ipcMain.on('manually-disconnect', (_event, data) => {
                 console.log(`Manually disconnecting: ${data}`);
 
@@ -536,7 +544,8 @@ app.on("ready", async () => {
 
             socket.on('disconnect', () => {
                 console.log('A client disconnected');
-                // Optional: remove client from the connectedClients list on disconnect
+                
+                // FR6- Connection.Management - Remove client from the connected clients list which now allows new clients to connect
                 if (clientDeviceName) {
                     const index = connectedClients.indexOf(clientDeviceName);
                     if (index !== -1) {

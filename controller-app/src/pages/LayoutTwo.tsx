@@ -34,6 +34,7 @@ function getDeviceType(socket: SocketIOClient.Socket) {
   return `${deviceType} | Socket ID - ${socket.id}`;
 }
 
+// FR3 - Establish.Real.Time.Communication - Client side socket communication
 export default function LayoutTwo({ socket, connected, maxConnections, manuallyDisconnected, voiceEnabled, motionEnabled }: LayoutTwoProps) {
   const [isLandscape, setIsLandscape] = useState(false);
   const processorEngineRef = useRef<any>(null); // Use a ref to store the processor engine
@@ -101,7 +102,11 @@ export default function LayoutTwo({ socket, connected, maxConnections, manuallyD
   const handleButtonEvent = (buttonId: string, isPressed: boolean) => {
     if (connected) {
 
-      // Haptics for button press (Only works for Chrome and Edge)
+      if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+        (DeviceMotionEvent as any).requestPermission()
+      }
+
+      // Haptics for button press (Only works for C4hrome and Edge)
       if (navigator.vibrate) {
         navigator.vibrate(75);
       }

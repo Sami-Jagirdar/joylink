@@ -145,7 +145,6 @@ function Customize() {
     return (
         <div className="container min-w-screen mx-auto p-4">
             <h1 className="text-3xl font-bold mb-8 text-center">Customize Layout Mappings</h1>
-            {/* Have a png of the chosen layout at the top */}
             <div className="space-y-3 p-4">
                 {mappings.map((mapping) => (
                     <div key={mapping.id} className="w-auto mb-2 p-4 border-b-neutral-500 border-b rounded-xl shadow-md hover:shadow-lg transition-shadow">

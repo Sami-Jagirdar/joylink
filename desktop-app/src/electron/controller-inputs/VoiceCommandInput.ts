@@ -2,6 +2,7 @@ import { keyboard, mouse } from "@nut-tree-fork/nut-js";
 import { KeyboardTarget, MouseClickTarget } from "../../types.js";
 import { ControllerInput } from "./ControllerInput.js";
 
+// FR16- Process.Voice.Commands
 export class VoiceCommandInput extends ControllerInput {
 
     constructor(id: string, mappingTarget: KeyboardTarget | MouseClickTarget) {

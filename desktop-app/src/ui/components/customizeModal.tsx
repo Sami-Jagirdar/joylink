@@ -6,6 +6,7 @@ import {Key, Button} from "@nut-tree-fork/nut-js";
 import MouseLayout from './mouse';
 import SensitivitySlider from './sensitivitySlider';
 
+// FR8: Map.Buttons.To.Peripherals, FR9: Map.AnalogStick.To.Peripherals , FR10: Map.VoiceCommands.To.Peripherals, FR11: Map.MotionSensorData.To.Peripherals - Individual customization of each button, analog stick, motion detection, and voice command.
 interface CustomizeModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -216,6 +217,8 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
               {objectType==='single' && 
               (<>
                 <p>Select upto 3 keys on the keyboard to bind to chosen button.</p>
+                <p className="text-sm text-neutral-400">Note: 1 key must be a regular key (A, W, Space, Num3, etc.) and the remaining keys if chosen must be modifier keys (Ctrl, Shift, Alt).</p>
+                <p className="text-sm text-neutral-400">Example: 'Shift+A' is a valid choice while 'A+W' is invalid and only 'A' will be registered by the system.</p>
                 <div className="bg-neutral-800 rounded-md p-4">
                   <KeyboardLayout
                   currentMapping={selectedMapping}
@@ -226,6 +229,8 @@ function CustomizeModal ({ isOpen, onClose, mappings, selectedMapping, onSave }:
               {objectType==='multi' && 
               (<>
                 <p>Select upto 3 keys on the keyboard to bind to the {currentDirection} direction. </p>
+                <p className="text-sm text-neutral-400">Note: 1 key must be a regular key (A, W, Space, Num3, etc.) and the remaining keys if chosen must be modifier keys (Ctrl, Shift, Alt).</p>
+                <p className="text-sm text-neutral-400">Example: 'Shift+A' is a valid choice while 'A+W' is invalid and only 'A' will be registered by the system.</p>
                 <div className="bg-neutral-800 rounded-md p-4">
                   <KeyboardLayout
                   currentMapping={selectedMapping}

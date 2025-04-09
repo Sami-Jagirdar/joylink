@@ -7,6 +7,7 @@ mouse.config.autoDelayMs = 0;
 // Coordinates correspond to joystick x,y
 // Point corresponds to mouse x,y
 
+// FR15- Process.User.Actions.AnalogStick
 export class AnalogInput extends ControllerInput {
     private deadzone = 0.15;
     private lastPosition: Point = {x:0,y:0};
