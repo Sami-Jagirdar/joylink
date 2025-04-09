@@ -39,6 +39,7 @@ describe('findPrivateIp', () => {
         const mockInterfaces = {
             eth0: [{ family: 'IPv4', internal: false, address: '192.168.1.1' }],
         };
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         vi.spyOn(require('os'), 'networkInterfaces').mockReturnValue(mockInterfaces);
         expect(findPrivateIp()).toBe('192.168.1.1');
     });
@@ -47,6 +48,7 @@ describe('findPrivateIp', () => {
         const mockInterfaces = {
             eth0: [{ family: 'IPv6', internal: false, address: '::1' }],
         };
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         vi.spyOn(require('os'), 'networkInterfaces').mockReturnValue(mockInterfaces);
         expect(findPrivateIp()).toBeNull();
     });
@@ -56,8 +58,8 @@ describe('ipcHandle', () => {
     it('should register an ipcMain handler with the correct key and handler', () => {
         const mockHandler = vi.fn();
         const mockIpcMainHandle = vi.spyOn(ipcMain, 'handle');
-        ipcHandle('testKey', mockHandler);
-        expect(mockIpcMainHandle).toHaveBeenCalledWith('testKey', expect.any(Function));
+        ipcHandle('getControllerMappings', mockHandler);
+        expect(mockIpcMainHandle).toHaveBeenCalledWith('getControllerMappings', expect.any(Function));
     });
 });
 

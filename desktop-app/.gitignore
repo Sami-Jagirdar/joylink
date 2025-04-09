@@ -21,6 +21,7 @@ certs
 .env
 .env.*
 *.env
+coverage
 
 # Editor directories and files
 .vscode/*
