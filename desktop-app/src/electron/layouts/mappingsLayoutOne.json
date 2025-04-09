@@ -179,8 +179,8 @@
     "target": {
       "type": "keyboard",
       "keybinding": [
-        "Key.Num1",
-        "Key.Num0"
+        "Key.LeftShift",
+        "Key.Space"
       ]
     }
   }

@@ -1,4 +1,4 @@
-  # joylink
+  # JoyLink
   Turn your smartphone into a virtual Gamepad, presentation remote, presenter remote, media controller and beyond.
   A virtual smartphone controller for the PC with preset layouts that maps controller inputs to keyboard and mouse inputs
 
@@ -23,9 +23,10 @@
   - create a directory `certs` (`mkdir certs`) and cd into it
   - create a local ssl certificate (this is required to create a secure https connection between the controller and your desktop. Without it, you cannot access the motion-sensor APIs or the microphone from the browser).
   -  -- run the command `mkcert -key-file key.pem -cert-file cert.pem <Private_IP_Address>`
+  -  You can find your IPv4 address by running `ipconfig` in Windows cmd or `ifconfig` in a Mac/Linux terminal
   -  -- Note: Windows users may have to install `choco` to install mkcert and run this command or directly install the mkcert package from their website and add it to your path. (Please see the relevant documentation)
 
-  ### PicoVoice (Voice Recognition) Setup
+    ### PicoVoice (Voice Recognition) Setup
   - Create a free picovoice account and train the Rhino Model. (This is required, because the free version only limits its usage to one user, so we developers can't share our key or model to the public).
   (https://www.youtube.com/watch?v=IPC_pCT9r1o&t=1s&ab_channel=Picovoice)
   - Choose the following intent and slots (don't modify) -->
@@ -46,18 +47,19 @@
   - cd back into the `desktop-app`
   - create a `contexts` directory (`mkdir contexts`)
   - copy and paste your contexts file into this directory (Has the extension `.rhn` provided you trained for Windows)
-  - in your `desktop-app` directory, create a `.env` file and add the following:
+  - In your `desktop-app` directory, create a `.env` file and add the following:
   ```
   LOCAL_PORT=7777
   PICOVOICE_KEY=<Your_Access_Key>
   CONTEXT_FILE_PATH=contexts/<Your_context_filename>
   ```
-  ### Network
+  - Note: You may still be able to use JoyLink without setting up PicoVoice. However, the voice commands won't work.
+
+    ### Network
   Make sure that the phone and PC are connected to the same wifi network. This may not work for large-scale enterprise networks such as UWS. In such cases, a hotspot network can be created from the phone or a 3rd device. Then the PC and (possibly) the phone can be connected to this hotspot.
 
 
   You are now ready to use JoyLink!
-
   - Run `npm run dev` in the `desktop-app` directory.
   - Note: It may take some time to load initially, but subsequent runs will be much faster
 
@@ -91,7 +93,7 @@
   - You will now be able to press buttons, move the analog stick, tilt your phone (if motion controls enabled), speak voice commands (if voice commands enabled) to execute the corresponding keyboard / mouse actions!
   - Note: For voice commands: You will need to preface each command with the hotword - 'JoyLink'. For example, if the command is 'punch', you will need to say 'Joylink punch' for the command to be recognized.
   - No other device will be able to connect while one device is already connected
-  - The connected device can be disconnected by simply closing the browser tab or clicking the Disconnect button on the connections page
+  - The connected device can be disconnected by simply closing the browser tab or clicking the Disconnect button on the Connections page
   - Enjoy!
 
 

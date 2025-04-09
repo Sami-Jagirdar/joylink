@@ -14,6 +14,7 @@ import { AnalogInput } from './controller-inputs/AnaogInput.js';
 import { MotionInput } from './controller-inputs/MotionControllerInput.js';
 import { VoiceCommandInput } from './controller-inputs/VoiceCommandInput.js';
 import { Rhino } from '@picovoice/rhino-node';
+import { emitWarning } from 'process';
 
 let mappingsLayoutTwo: Mapping[] = [];
 
@@ -464,10 +465,12 @@ app.on("ready", async () => {
                 const accessKey = process.env.PICOVOICE_KEY;
                 const relativePath = process.env.CONTEXT_FILE_PATH;
                 if (!accessKey || !relativePath) {
-                    throw new Error("Picovoice access key or context path is not defined in the environment variables.");
+                    emitWarning("Picovoice access key or context path is not defined in the environment variables.");
+                    rhino= null;
+                } else {
+                    const contextPath = path.resolve(process.cwd(), relativePath);
+                    rhino = new Rhino(accessKey, contextPath);
                 }
-                const contextPath = path.resolve(process.cwd(), relativePath);
-                rhino = new Rhino(accessKey, contextPath);
             }
             
 
