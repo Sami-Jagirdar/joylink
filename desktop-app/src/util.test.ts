@@ -1,7 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { isDev, findPrivateIp, ipcHandle, convertMapping, revertMapping } from './electron/util';
 import { ipcMain } from 'electron';
 import { Key, Button } from '@nut-tree-fork/nut-js';
+
+vi.mock('electron', () => {
+    return {
+      ipcMain: {
+        handle: vi.fn(),
+      },
+    };
+  });
 
 describe('isDev', () => {
     it('should return true if NODE_ENV is "development"', () => {
