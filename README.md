@@ -1,4 +1,6 @@
   # JoyLink
+  ### Sami Jagirdar | Wilson Truong | Aditya Goyal
+
   Turn your smartphone into a virtual Gamepad, presentation remote, presenter remote, media controller and beyond.
   A virtual smartphone controller for the PC with preset layouts that maps controller inputs to keyboard and mouse inputs
 
@@ -9,6 +11,9 @@
   ## Preface
   This application was rigorously tested on a Windows desktop with an Android phone accessing a Chrome browser.
   While it has also been tested with other platforms like MacOS and iOS devices, we can guarantee all features to work only on a Windows desktop with Android phones.
+
+  - Make sure to have Node and npm installed on your machine. This project was developed on node version v22.13.1
+  (https://nodejs.org/en/download)
 
   - Clone this repository `git clone https://github.com/Sami-Jagirdar/joylink.git`
 
@@ -97,6 +102,10 @@
   - Enjoy!
 
 
+# References
+- The setup of the electrion desktop-app was done by following the tutorial https://www.youtube.com/watch?v=fP-371MN0Ck&t=10693s&ab_channel=freeCodeCamp.org
+- Beyond that, most of the logic of the code was implemented by the developers themselves.
+- LLMs were utilized only to aid with styling UI components, basic utility functions, or some initial setup. Please see the LLM logs document in the docs folder for a list of prompts and outputs.
 
 
 
