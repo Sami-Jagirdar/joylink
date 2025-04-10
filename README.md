@@ -10,6 +10,9 @@
   This application was rigorously tested on a Windows desktop with an Android phone accessing a Chrome browser.
   While it has also been tested with other platforms like MacOS and iOS devices, we can guarantee all features to work only on a Windows desktop with Android phones.
 
+  - Make sure to have Node and npm installed on your machine. This project was developed on node version v22.13.1
+  (https://nodejs.org/en/download)
+
   - Clone this repository `git clone https://github.com/Sami-Jagirdar/joylink.git`
 
   ## Step 1 - Controller App
