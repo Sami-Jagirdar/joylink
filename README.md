@@ -1,6 +1,9 @@
   # JoyLink
   ### Sami Jagirdar | Wilson Truong | Aditya Goyal
 
+  Demo Video: 
+  [![Watch the video](https://img.youtube.com/vi/i6wLnOiokGk/hqdefault.jpg)](https://www.youtube.com/watch?v=i6wLnOiokGk)
+
   Turn your smartphone into a virtual Gamepad, presentation remote, presenter remote, media controller and beyond.
   A virtual smartphone controller for the PC with preset layouts that maps controller inputs to keyboard and mouse inputs
 
